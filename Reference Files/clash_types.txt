@@ -1,0 +1,37 @@
+BIM CLASH CATEGORIES AND STANDARD SOLUTIONS
+
+1. Wall inside wall (Structure vs Architecture)
+   -> Problem: Structural wall located inside architectural wall.
+   -> Solution: Requires proper alignment and model responsibility separation.
+
+2. Beam inside wall (Structure vs Architecture)
+   -> Problem: Steel beam intersects wall.
+   -> Solution: Wall should be adjusted to underside of beam.
+
+3. Column inside slab (Structure)
+   -> Problem: Columns intersect slab.
+   -> Solution: Columns pass through; slab openings or connections required.
+
+4. Ceiling inside wall (Architecture)
+   -> Problem: Ceiling element overlaps with wall.
+   -> Solution: Ceiling boundaries need correction.
+
+5. Slab intersections (MEP vs Structure)
+   -> Problem: Air outlets clash with slab.
+   -> Solution: Requires redesign or coordination with architect.
+
+6. Ventilation vs columns (MEP vs Structure)
+   -> Problem: Ventilation ducts intersect structural columns.
+   -> Solution: Ducts need to be rerouted.
+
+7. Ducts in elevator shaft (MEP)
+   -> Problem: Ducts routed through elevator shaft.
+   -> Solution: Move to adjacent shaft with proper clearance.
+
+8. Duplicate sanitary components (MEP)
+   -> Problem: Sanitary elements duplicated at same location.
+   -> Solution: Remove redundant instances.
+
+9. Coordination dependency (Cross-discipline)
+   -> Problem: Issues require cross-discipline coordination rather than direct modeling fixes.
+   -> Solution: Coordination meeting or design decision required.

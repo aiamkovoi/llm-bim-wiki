@@ -1,0 +1,2911 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Wiki - BIM Knowledge Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font: 'Inter', system-ui, sans-serif;
+      --text-primary: #111;
+      --text-secondary: #555;
+      --text-muted: #999;
+      --border: #e5e5e5;
+      --border-soft: #f0f0f0;
+      --surface: #fafafa;
+      --surface-hover: #f5f5f5;
+      --accent: #111;
+      --green: #16a34a;
+      --red: #dc2626;
+      --radius: 10px;
+      --radius-sm: 7px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      background: #fff;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      letter-spacing: -0.4px;
+    }
+
+    .sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .steps {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+
+    .step {
+      font-size: 12px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .step.active {
+      background: #f0f0f0;
+      color: var(--text-primary);
+      font-weight: 600;
+      border-color: #bbb;
+    }
+
+    .step.done {
+      color: var(--green);
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-label {
+      font-size: 11px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    .issue {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+    }
+
+    .issue:last-of-type {
+      border-bottom: none;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .b-clash {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .b-info {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .b-closed {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .b-open {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .run-btn {
+      margin-top: 14px;
+      padding: 9px 20px;
+      background: #fff;
+      border: 1px solid #bbb;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .run-btn:hover:not(:disabled) {
+      background: #f5f5f5;
+    }
+
+    .run-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── Activity Feed (replaces raw log) ── */
+    .log-lines {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-line {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 5px 10px;
+      border-radius: 6px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .log-line::before {
+      content: '·';
+      color: #ccc;
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .log-line.ok {
+      color: var(--green);
+      background: #f0fdf4;
+    }
+
+    .log-line.ok::before {
+      content: '✓';
+      font-size: 12px;
+    }
+
+    .log-line.err {
+      color: var(--red);
+      background: #fef2f2;
+    }
+
+    .log-line.err::before {
+      content: '✕';
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .tab {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid #e5e5e5;
+      color: #666;
+      cursor: pointer;
+      background: none;
+    }
+
+    .tab.active {
+      background: #f5f5f5;
+      color: #111;
+      font-weight: 500;
+      border-color: #ccc;
+    }
+
+    .wiki-text {
+      font-size: 13px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: #444;
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      max-height: 320px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.7;
+    }
+
+    .patterns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .ptag {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .role-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .rtab {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid #e5e5e5;
+      color: #666;
+      cursor: pointer;
+      background: none;
+    }
+
+    .rtab.active {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
+
+    .query-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .query-row input,
+    .query-row textarea {
+      flex: 1;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 7px;
+      border: 1px solid #ccc;
+      background: #fff;
+      color: #111;
+      font-family: inherit;
+    }
+
+    .query-row textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .query-row input:focus,
+    .query-row textarea:focus {
+      outline: none;
+      border-color: #888;
+    }
+
+    .ask-btn {
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid #bbb;
+      border-radius: 7px;
+      background: #fff;
+      color: #111;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .ask-btn:hover:not(:disabled) {
+      background: #f5f5f5;
+    }
+
+    .ask-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .api-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .api-row label {
+      font-size: 11px;
+      color: #999;
+      white-space: nowrap;
+    }
+
+    .api-row input {
+      flex: 1;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      font-family: monospace;
+      color: #444;
+    }
+
+    .api-row input:focus {
+      outline: none;
+      border-color: #888;
+      background: #fff;
+    }
+
+    .api-hint {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: -6px;
+      margin-bottom: 10px;
+    }
+
+    .presets {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .preset {
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid #e5e5e5;
+      border-radius: 20px;
+      color: #666;
+      cursor: pointer;
+      background: none;
+    }
+
+    .preset:hover {
+      background: #f5f5f5;
+      color: #111;
+    }
+
+    .answer {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #111;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 7px;
+      padding: 14px;
+      white-space: pre-wrap;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid #ddd;
+      border-top-color: #333;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .step-desc {
+      font-size: 11px;
+      color: #aaa;
+      margin-bottom: 1.4rem;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      line-height: 1.65;
+    }
+
+    .card-when {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid #bbb;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      line-height: 1.9;
+    }
+
+    .card-when strong {
+      color: #333;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .card-when span {
+      color: #aaa;
+      font-size: 11px;
+    }
+
+    .save-btn {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #888;
+      background: none;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+    }
+
+    .save-btn:hover {
+      background: #f5f5f5;
+      color: #333;
+      border-color: #bbb;
+    }
+
+    .export-btn {
+      color: #555;
+      border-color: #ccc;
+    }
+
+    .saved-note {
+      font-size: 11px;
+      color: #16a34a;
+      margin-top: 6px;
+    }
+
+    .lint-report {
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #333;
+      background: #fffdf5;
+      border: 1px solid #fde68a;
+      border-radius: 7px;
+      padding: 14px;
+      white-space: pre-wrap;
+    }
+
+    .tab-desc {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 10px;
+      min-height: 16px;
+    }
+
+    .role-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .role-card {
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      background: none;
+      text-align: left;
+      transition: border-color .15s;
+      min-width: 130px;
+    }
+
+    .role-card:hover {
+      border-color: #bbb;
+      background: #fafafa;
+    }
+
+    .role-card.active {
+      border-color: #111;
+      background: #111;
+    }
+
+    .role-card.active .role-name {
+      color: #fff;
+    }
+
+    .role-card.active .role-hint {
+      color: #888;
+    }
+
+    .role-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #111;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .role-hint {
+      font-size: 10px;
+      color: #aaa;
+      display: block;
+      line-height: 1.4;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 14px;
+      border: 1px solid #e0e0e0;
+      border-radius: 7px;
+      overflow: hidden;
+      width: fit-content;
+    }
+
+    .mode-btn {
+      font-size: 12px;
+      padding: 6px 16px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .mode-btn.active {
+      background: #111;
+      color: #fff;
+    }
+
+    .upload-zone {
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: border-color .2s, background .2s;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.drag {
+      border-color: #888;
+      background: #fafafa;
+    }
+
+    .upload-zone p {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .upload-zone span {
+      font-size: 11px;
+      color: #bbb;
+    }
+
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .file-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 6px 10px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    .file-chip .fname {
+      flex: 1;
+      color: #444;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-chip .fsize {
+      color: #aaa;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .file-chip .fremove {
+      color: #ccc;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
+    .file-chip .fremove:hover {
+      color: #888;
+    }
+
+    .file-chip .fstatus {
+      font-size: 10px;
+      color: #16a34a;
+    }
+
+    .key-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .key-row label {
+      font-size: 11px;
+      color: #999;
+      white-space: nowrap;
+    }
+
+    .key-row input {
+      flex: 1;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-family: monospace;
+      color: #444;
+    }
+
+    .key-row input:focus {
+      outline: none;
+      border-color: #888;
+    }
+
+    .key-row a {
+      font-size: 11px;
+      color: #bbb;
+      white-space: nowrap;
+    }
+
+    .project-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .project-bar-label {
+      font-size: 11px;
+      color: #999;
+      white-space: nowrap;
+    }
+
+    .project-chips {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .project-chip {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid #e5e5e5;
+      color: #666;
+      cursor: pointer;
+      background: none;
+    }
+
+    .project-chip.active {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
+
+    .project-chip .pcount {
+      font-size: 10px;
+      opacity: 0.6;
+      margin-left: 4px;
+    }
+
+    .new-project-btn {
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px dashed #ddd;
+      border-radius: 20px;
+      color: #aaa;
+      background: none;
+      cursor: pointer;
+    }
+
+    .new-project-btn:hover {
+      border-color: #888;
+      color: #555;
+    }
+
+    .backup-btn {
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px solid #e5e5e5;
+      border-radius: 20px;
+      color: #888;
+      background: none;
+      cursor: pointer;
+    }
+
+    .backup-btn:hover {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .bcf-summary {
+      font-size: 11px;
+      color: #888;
+      padding: 4px 6px;
+    }
+
+    /* ── API Key collapsible ── */
+    details.api-section {
+      margin-bottom: 14px;
+    }
+
+    details.api-section summary {
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 0;
+    }
+
+    details.api-section summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.api-section summary::before {
+      content: '›';
+      font-size: 14px;
+      transition: transform .15s;
+      display: inline-block;
+    }
+
+    details.api-section[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .hero {
+      background: linear-gradient(160deg, #fcfcfc 0%, #f2f2f2 100%);
+      border: 1px solid #e2e2e2;
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .hero-kicker {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+    }
+
+    .hero-copy {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+      max-width: 620px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .hero-btn {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #d7d7d7;
+      background: #fff;
+      color: #333;
+      cursor: pointer;
+      transition: background .12s, border-color .12s;
+      letter-spacing: -0.1px;
+    }
+
+    .hero-btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .hero-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .hero-btn.primary:hover {
+      background: #222;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .feature-item {
+      border: 1px solid #e8e8e8;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .feature-item strong {
+      display: block;
+      font-size: 12px;
+      color: #111;
+      margin-bottom: 4px;
+    }
+
+    .feature-item span {
+      font-size: 11px;
+      color: #777;
+      line-height: 1.5;
+    }
+
+    .status-note {
+      font-size: 12px;
+      color: #666;
+      background: #fff9e8;
+      border: 1px solid #f8df98;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .helper-text {
+      font-size: 11px;
+      color: #888;
+      margin: 8px 0 12px;
+      line-height: 1.6;
+    }
+
+    .empty-state {
+      font-size: 13px;
+      color: var(--text-secondary);
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      background: var(--surface);
+      margin-bottom: 12px;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .empty-state .empty-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .empty-state strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .empty-state p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .mini-list {
+      margin-top: 6px;
+    }
+
+    .mini-list span {
+      display: block;
+    }
+
+    @media (max-width: 640px) {
+      .hero-top {
+        flex-direction: column;
+      }
+
+      .query-row {
+        flex-direction: column;
+      }
+
+      .ask-btn,
+      .run-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>LLM Wiki: BIM Knowledge Base</h1>
+    <p class="sub">Turn your BIM documents into a living knowledge base. It answers questions by role and remembers
+      project patterns.</p>
+    <p style="font-size:12px;color:#555;margin-top:-8px;margin-bottom:12px;line-height:1.5;max-width:640px;">Unlike
+      standard AI chatbots or pure vector RAG, this app doesn't just run semantic search on raw files. It compiles your
+      documents into an evolving, human-readable intermediate knowledge base. <a
+        href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f" target="_blank"
+        style="color:#2563eb">Read Karpathy's explanation</a></p>
+    <p style="font-size:11px;color:#ccc;margin-top:-4px;margin-bottom:1.4rem">Based on <a
+        href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f" target="_blank"
+        style="color:#bbb">Karpathy's LLM Wiki pattern</a> · adapted for BIM teams · <a
+        href="https://github.com/Ss1024sS/LLM-wiki" target="_blank" style="color:#bbb">open source</a></p>
+
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="hero-kicker">What It Does</div>
+          <div class="hero-copy">Turn your BIM documents into a structured wiki. It tracks recurring patterns and lets
+            you ask questions by role.</div>
+        </div>
+        <div class="hero-kicker">Browser-only MVP</div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-item"><strong>BCF parsing</strong><span>Reads native BCF issues and turns them into
+            structured text for wiki ingest.</span></div>
+        <div class="feature-item"><strong>Discipline batching</strong><span>Splits larger BCF files into discipline
+            groups to keep context focused.</span></div>
+        <div class="feature-item"><strong>Multi-project</strong><span>Each project keeps its own wiki pages, ingest
+            state and saved insights.</span></div>
+        <div class="feature-item"><strong>Backup / restore</strong><span>Export the whole workspace and import it later
+            without a backend.</span></div>
+      </div>
+    </div>
+
+    <div class="status-note">Browser-only for now. Storage is local to this browser session, and the next product step
+      is a backend with git-backed markdown and shared access.</div>
+
+    <div class="steps">
+      <div class="step active" id="s1">1. Parse documents</div>
+      <div class="step" id="s2">2. Build wiki</div>
+      <div class="step" id="s3">3. Query by role</div>
+    </div>
+    <p class="step-desc">Upload BIM docs → LLM extracts structured knowledge → anyone on the team can ask questions in
+      plain language</p>
+
+    <div class="project-bar" id="projectBar">
+      <span class="project-bar-label">Project</span>
+      <div class="project-chips" id="projectChips"></div>
+      <button class="new-project-btn" onclick="createNewProject()">+ New project</button>
+      <button class="backup-btn" onclick="exportAllProjects()">↓ Backup all</button>
+      <button class="backup-btn" onclick="document.getElementById('backupInput').click()">↑ Restore</button>
+      <input type="file" id="backupInput" accept=".json" style="display:none"
+        onchange="importAllProjects(this.files[0]);this.value=''">
+    </div>
+
+    <div class="card">
+      <div class="card-title">Step 1: Parse documents</div>
+      <div class="card-desc">Upload BIM documents (BCF, BEP, meeting minutes, standards). The LLM reads them and builds
+        a structured wiki, linking issues and decisions across files. Each new upload adds to what the wiki already
+        knows.</div>
+      <div class="card-when">
+        <strong>When to run:</strong><br>
+        🚀 Project start - upload BEP, standards, initial BCF log<br>
+        📋 After each coordination meeting - add meeting minutes<br>
+        🔄 When BCF is updated - add new or closed issues<br>
+        📄 When BEP is revised - update standards and LOD matrix<br>
+        <span style="color:#bbb">You don't need to run it every time - only when new documents arrive.</span>
+      </div>
+      <details class="api-section">
+        <summary>Enter your API key to use with your own files</summary>
+        <div class="key-row" style="margin-top:10px">
+          <label>OpenRouter key</label>
+          <input id="apiKeyIngest" type="password" placeholder="sk-or-v1-..."
+            onkeydown="if(event.key==='Enter') document.getElementById('ingestBtn').click()" />
+          <a href="https://openrouter.ai/keys" target="_blank">Get free key →</a>
+        </div>
+        <div style="font-size:11px; color:#888; margin-top:4px;">Your key is used only in this browser tab. It is never
+          sent to any server.</div>
+        <div style="font-size:13px; font-weight:500; color:var(--green); margin-top:12px; margin-bottom:4px;">Demo
+          project works without any API key!</div>
+      </details>
+
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="modeDemo" onclick="handleBottomTabDemo()">▶ Demo project</button>
+        <button class="mode-btn" id="modeOwn" onclick="handleBottomTabOwn()">↑ Your project</button>
+      </div>
+
+      <div class="helper-text">Supported now: .bcf, .txt, .csv, .md, .pdf text extraction, .ifc headers. Not in this
+        browser MVP: PDF images, XLSX formulas, shared team access, git-backed markdown.</div>
+
+      <!-- DEMO MODE -->
+      <div id="demoSection">
+        <div class="card-label" style="margin-bottom:8px">(DEMO Project - North West Tower) · 4 documents</div>
+        <div class="issue"><span class="badge b-info">BEP</span><span class="badge b-closed">19
+            pages</span><span>north_west_tower_BEP.pdf - team, LOD matrix, goals, QC process</span></div>
+        <div class="issue"><span class="badge b-clash">BCF</span><span class="badge b-closed">9
+            types</span><span>clash_types.bcf - typical clash categories with agreed solutions</span></div>
+        <div class="issue"><span class="badge b-info">LL</span><span class="badge b-closed">5
+            rules</span><span>lessons_learned.xlsx - standard solutions log, modelling requirements</span></div>
+        <div class="issue"><span class="badge b-clash">meeting</span><span class="badge b-open">2
+            open</span><span>coordination_meeting_23042026.txt - B1-B2 zone, BCF #45-48, BWIC, BCF #52</span></div>
+      </div>
+
+      <!-- YOUR PROJECT MODE -->
+      <div id="ownSection" style="display:none">
+        <div class="empty-state">
+          <span class="empty-icon">📂</span>
+          <strong>Drop your project files here</strong>
+          Start with your BEP, modelling standards, or a BCF export - the wiki builds from the first upload and gets
+          richer with each addition.
+          <p>Best results: BEP + meeting minutes + BCF log. No files yet? <a href="#"
+              onclick="loadDemoBackup(); return false;" style="color:#2563eb">Load the sample workspace</a> to
+            explore.</p>
+        </div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')"
+          ondrop="event.preventDefault();this.classList.remove('drag');handleFiles(event.dataTransfer.files)">
+          <p>Drop your BIM documents here (BCF, BEP, Meeting Minutes, Standards)</p>
+          <span>Supported: .txt · .bcf (native parse - issues extracted) · .csv · .md · .pdf (text) · .ifc
+            (headers)</span>
+        </div>
+        <input type="file" id="fileInput" multiple accept=".txt,.bcf,.csv,.md,.pdf,.ifc,.xml" style="display:none"
+          onchange="handleFiles(this.files)">
+        <div class="file-list" id="fileList"></div>
+      </div>
+
+      <button class="run-btn" id="ingestBtn" onclick="runIngest()">&#9654; Parse &amp; build wiki</button>
+      <div class="log-lines" id="logEl"></div>
+    </div>
+
+    <div class="card" id="wikiCard" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div class="card-title" style="margin-bottom:0;">Step 2: Knowledge base (wiki)</div>
+        <div class="mode-toggle" style="margin-bottom:0;border-color:#ccc;">
+          <button class="mode-btn active" id="viewTextBtn" onclick="toggleWikiView('text')"
+            style="padding:4px 12px;font-size:11px;">Text View</button>
+          <button class="mode-btn" id="viewGraphBtn" onclick="toggleWikiView('graph')"
+            style="padding:4px 12px;font-size:11px;">Visual Graph</button>
+        </div>
+      </div>
+      <div class="card-desc" id="wikiCardDesc">The LLM built <strong>7 pages</strong> from 4 documents. These are
+        pre-compiled summaries grouped by discipline and topic. Queries read these pages, not the raw files.</div>
+      <div id="textContainer">
+        <div class="card-label" style="margin-bottom:6px">Wiki pages - click to read</div>
+        <div class="tabs" id="tabsEl"></div>
+        <div class="tab-desc" id="tabDescEl"></div>
+        <div class="wiki-text" id="wikiEl"></div>
+      </div>
+      <div id="graphContainer"
+        style="display:none; height:450px; border:1px solid var(--border-soft); border-radius:var(--radius-sm); background:var(--surface);">
+      </div>
+      <div class="patterns" id="patternsEl"></div>
+      <div
+        style="margin-top:14px;padding-top:12px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <button class="save-btn" onclick="runLint()" id="lintBtn">🔍 Lint wiki - check for contradictions &amp;
+          gaps</button>
+        <button class="save-btn" onclick="runCrossProjectAnalysis()" id="crossBtn">🔗 Cross-project patterns</button>
+        <button class="save-btn export-btn" onclick="exportWikiZip()"
+          style="background:#fce7f3;color:#be185d;border-color:#f9a8d4;display:flex;align-items:center;gap:4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download .md (ZIP)
+        </button>
+        <button class="save-btn export-btn" onclick="exportWiki()" id="exportBtn">📦 Backup (JSON)</button>
+        <button class="save-btn export-btn" onclick="importWiki()" id="importBtn">📥 Restore (JSON)</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(this)">
+        <span style="font-size:11px;color:#bbb">Karpathy /kb-lint · run when new documents added or monthly</span>
+      </div>
+      <div id="lintEl"></div>
+    </div>
+
+    <div class="card" id="queryCard" style="display:none;">
+      <div class="card-title">Step 3: Query</div>
+      <div class="card-desc">Ask questions about the project. The LLM reads the wiki (not the original files) to answer
+        your query.</div>
+      <div class="query-row" style="margin-top: 12px;">
+        <textarea id="qInput" rows="2" placeholder="Ask anything about this project..."
+          onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); runQuery();}"></textarea>
+        <button class="ask-btn" id="askBtn" onclick="runQuery()">Ask</button>
+      </div>
+      <div id="answerEl"></div>
+    </div>
+  </div>
+
+  <script>
+    const WIKI = {
+      "wiki/log.md": `# System Log\nChronological record of ingest operations.\n\n## [2026-04-20] Ingest Session\n- Parsed north_west_tower_BEP.pdf\n- Parsed clash_types.bcf\n- Parsed lessons_learned.xlsx\n- Parsed coordination_meeting_23042026.txt\n`,
+      "wiki/index.md": `# BIM Knowledge Base - North West Tower
+
+Sources: BEP (v1.0) · BCF clash types · Lessons learned log · Meeting 23.04.2026
+Last updated: 2026-04-23 | Wiki pages: 6 | Open actions: 2
+
+## Pages
+
+### Project
+- [project](projects/nwt.md) - North West Tower, 30-storey, Design & Build, team & schedule
+
+### Standards & Process
+- [bep](bep.md) - BIM Execution Plan: goals, LOD matrix, meetings, QC
+- [lessons-learned](lessons-learned.md) - 5 standard clash solutions, modelling requirements
+
+### Issues & Meetings
+- [clash-types](clash-types.md) - 9 typical clash categories, BCF status
+- [meeting-2026-04-23](meetings/2026-04-23.md) - B1-B2 coordination, 3 action items (2 open)
+
+### Patterns
+- [patterns](patterns/overview.md) - 2 recurring patterns, 1 monitor
+
+## Quick stats
+
+| Metric | Value |
+|--------|-------|
+| Project stage | Developed Design (LOD 300) |
+| Open actions | 2 (BCF #45-48 · BWIC resubmit) |
+| Closed in last meeting | 1 (BCF #52 elevator shaft) |
+| Recurring patterns | 2 |
+| Disciplines | ARCH · STR · MEP · FIRE |
+| Coordination cadence | Fortnightly · Thursdays 4pm |`,
+
+      "wiki/projects/nwt.md": `# North West Tower - Project Overview
+
+Address: 1 Closer Street | Type: 30-storey office + residential, 6 levels below grade
+Delivery: Design and Build | Stage: Developed Design (LOD 300) as of 2026-04-23
+BIM Manager: Jim Bim, ABC Consultants
+
+## Team
+
+| Role | Discipline | Person | Company |
+|------|-----------|--------|---------|
+| BIM Manager | - | Jim Bim | ABC Consultants |
+| BIM Coordinator | ARCH | Lee Brown | LC Architects |
+| BIM Coordinator | STR | John James | JKL Structural Engineers |
+| MEP Coordinator | MEP | Dana Wallis | DPW Engineers |
+| BIM Coordinator | FIRE | Walt Engine | Engine Fire Engineers |
+| Discipline Lead | STR | Kevin Kerr | JKL Structural |
+| Discipline Lead | MEP | Duncan Davies | DPW Engineers |
+| Contractor | - | Corey Cuthill | Construct Contractors |
+
+## Project schedule
+
+| Phase | Start | End |
+|-------|-------|-----|
+| Concept design | 15.09.2014 | 15.11.2014 |
+| Preliminary design | 25.11.2014 | 25.01.2015 |
+| Developed design | 10.02.2015 | 10.04.2015 |
+| Detailed design | 15.04.2015 | 01.09.2015 |
+| Construction | 01.07.2015 | 01.09.2017 |
+| Handover | Sep 2017 | Nov 2017 |
+
+## Open actions (as of 23.04.2026)
+
+| Ref | Issue | Owner | Deadline |
+|-----|-------|-------|----------|
+| BCF #45-48 | Smoke extraction ducts vs ramp - round to rectangular duct | Dana Wallis (MEP) | 25.04.2026 |
+| BWIC | Penetration requests rejected - missing insulation thickness | Dana Wallis (MEP) | 27.04.2026 |
+
+Full details: [meeting-2026-04-23]
+
+## BIM goals
+
+| Priority | Goal | BIM Use |
+|----------|------|---------|
+| High | Design optimisation, budget control | Design Authoring, Cost Estimation |
+| High | Better coordinated docs for contractor | Design Authoring, 3D Coordination |
+| Med | Digital asset for FM | Record Modelling |
+| Med | Stakeholder communication | Design Review, 4D Modelling |`,
+
+      "wiki/bep.md": `# BIM Execution Plan - North West Tower
+
+Prepared by: Jim Bim, ABC Consultants | Date: 01.07.2014 | Revision: V1
+Reference: NWT Project BIM Brief · XYZ Ltd BIM guide and standard
+
+## BIM Uses
+
+| BIM Use | Value | Responsible |
+|---------|-------|-------------|
+| Design Authoring | High | ALL disciplines |
+| 3D Coordination | High | ALL disciplines |
+| Cost Estimation | High | QS, CONST, ARCH, STR, MEP |
+| Design Review | Med | ALL disciplines |
+| Record Modelling | Med | CONSTRUCT |
+| Phase Planning 4D | Med | CONSTRUCT |
+
+## Collaboration
+
+- Model exchange: Fortnightly, Thursdays 4pm
+- Cost estimation: 1 week before each milestone
+
+| Meeting | Facilitator | Frequency |
+|---------|-------------|-----------|
+| BIM kick-off | BIM Manager | Once (pre-design) |
+| Design coordination | BIM Manager | Fortnightly |
+| Construction reviews | Discipline Lead + BIM Coordinator | Design stage |
+
+## File naming
+
+| Discipline | Model file name |
+|-----------|----------------|
+| Architecture | ARCH-NWT |
+| Structure | STRUCT-NWT |
+| Mechanical | MECH-NWT |
+| Electrical | ELEC-NWT |
+| Fire | FIRE-NWT |
+
+## LOD matrix - key elements
+
+| Element | Concept | Preliminary | Developed | Detailed |
+|---------|---------|-------------|-----------|----------|
+| Structural beams | 100 | 200 | 200 | 300 |
+| Structural columns | 100 | 200 | 200 | 300 |
+| Floor structures | 100 | 200 | 200 | 300 |
+| Footings / retaining walls | - | 200 | 200 | 300 |
+| HVAC ductwork | - | - | 200 | 200 |
+| Sprinklers | - | - | 200 | 200 |
+| Hydraulic pipework | - | - | 200 | 200 |
+| Services in risers | - | 200 | 200 | 300 |
+| Lifts / escalators | 100 | 200 | 200 | 300 |
+
+Current stage = Developed Design → STR at LOD 200, MEP at LOD 200
+
+## Quality control
+
+| Check | Responsible | Frequency |
+|-------|-------------|-----------|
+| Visual check | BIM Coordinators + discipline leads | Ongoing |
+| Interference / clash check | BIM Coordinators | Fortnightly before exchange |
+| Model integrity | BIM Coordinators + BIM Manager | Monthly |
+| Design review vs client objectives | BIM Coordinators + BIM Manager | Fortnightly |`,
+
+      "wiki/lessons-learned.md": `# Lessons Learned - Standard Clash Solutions
+
+Cross-project standard solutions. Apply proactively before each coordination session.
+
+## Standard solutions
+
+| Category | Clashing elements | Standard solution | Modelling requirement |
+|----------|-------------------|-------------------|-----------------------|
+| STR vs MEP | HVAC Ducts - Structural Beams | MEP drops routing below beam. If height < 2400mm → STR sleeve/penetration | MEP creates PfV with 50mm offset from pipe geometry |
+| STR vs MEP | Sanitary (SAN) - Floor Slab | No chasing structural slabs. Switch to suspended system below slab | ARCH adds bulkheads to hide services on floor below |
+| ARCH vs MEP | Switches (ELEC) - Doors | ARCH priority. ELEC shifts 150mm from door opening edge | ELEC script auto-checks distance sockets/switches to doors |
+| FIRE vs MEP | Sprinklers - Lighting fixtures | FIRE priority. Lights and diffusers relocate | RCP coordination required. Min clearance 300mm |
+| ARCH vs STR | Stair flights - Floor slabs | ARCH models finishes only. STR models structural concrete | Strict Workset separation. Clearance concrete to finish: 50mm |
+
+## Key rules (apply to all projects)
+
+→ PfV (Provision for Void): MEP must include insulation thickness + 25mm installation tolerance + 50mm offset
+→ FIRE always has priority over MEP in ceiling zone
+→ ARCH always has priority over ELEC for door clearances
+→ STR beams in corridor zones: highest clash risk - check first before every session
+→ Stair zone: strict Workset separation ARCH / STR - never merge
+
+## Cross-reference
+
+→ BWIC issue (NWT meeting 23.04.2026): PfV submitted without insulation - rejected. Root cause: MEP team not briefed on this standard at project start. See [patterns] ⚠ RECURRING PATTERN 2`,
+
+      "wiki/clash-types.md": `# Typical Clash Types - BCF Log
+
+9 recurring clash categories. Source: clash_types.bcf + coordination history.
+
+| # | Clash type | Disciplines | Standard solution |
+|---|-----------|-------------|-------------------|
+| 1 | Wall inside wall | STR vs ARCH | Alignment and model responsibility separation |
+| 2 | Beam inside wall | STR vs ARCH | Wall adjusted to underside of beam |
+| 3 | Column inside slab | STR | Slab openings or proper structural connections |
+| 4 | Ceiling inside wall | ARCH | Ceiling boundaries corrected |
+| 5 | Slab intersections - air outlets | MEP vs STR | Redesign or ARCH coordination required |
+| 6 | Ventilation vs columns | MEP vs STR | Ducts rerouted - see [lessons-learned] |
+| 7 | Ducts in elevator shaft | MEP | Move to adjacent shaft with clearance |
+| 8 | Duplicate sanitary components | MEP | Model audit - remove redundant instances |
+| 9 | Coordination dependency | Cross-discipline | Requires meeting or design decision |
+
+## Active BCF - NWT project
+
+| BCF ref | Issue | Zone | Status | Deadline |
+|---------|-------|------|--------|----------|
+| #45-48 | Smoke extraction ducts vs ramp vehicle clearance (<2200mm) | B1-B2 basement | 🔴 OPEN | 25.04.2026 |
+| #52 | Elevator shaft ARCH vs STR pylons misalignment | Level L05 | ✅ CLOSED | 23.04.2026 |
+
+## Highest risk zones - NWT
+
+- B1-B2 basement / parking: active clash zone, ramp clearance critical
+- Corridor zones all levels: STR/MEP duct-beam - ⚠ RECURRING PATTERN, see [patterns]
+- Elevator shaft L05: resolved (shared coordinates error)`,
+
+      "wiki/meetings/2026-04-23.md": `# Coordination Meeting - 23 April 2026
+
+Project: North West Tower | Stage: Developed Design (LOD 300)
+Facilitator: Jim Bim (BIM Manager, ABC Consultants) | Format: Virtual
+
+## Attendees
+
+| Name | Role | Company |
+|------|------|---------|
+| Jim Bim | BIM Manager | ABC Consultants |
+| Lee Brown | Lead Architect / BIM Coordinator | LC Architects |
+| Kevin Kerr | Lead Structural | JKL Structural |
+| Dana Wallis | MEP Coordinator | DPW Engineers |
+
+## Agenda
+
+1. Critical clash resolution - basement parking zone B1-B2
+2. BWIC (Builders Work in Connection) exchange process
+3. Open RFI status update
+
+---
+
+## Action items
+
+### 1 · BCF #45-48 - Smoke extraction ducts vs ramp 🔴 OPEN
+
+Problem: Main ducts clash with vehicle clearance envelope on ramp. Clearance < 2200mm (minimum required).
+
+Solution: Dana Wallis (MEP) changes duct section from round to rectangular - maintains cross-sectional area at lower overall height.
+
+Owner: Dana Wallis (DPW Engineers) | Deadline: 25.04.2026
+
+---
+
+### 2 · BWIC - Penetration requests without insulation 🔴 OPEN
+
+Problem: MEP penetration requests issued without insulation thickness. Model NWT-MEP-BWIC-V1 rejected.
+
+Solution: MEP updates void families - add insulation thickness parameter + 25mm installation tolerance. STR to accept updated model 28.04.2026.
+
+Owner: Dana Wallis (DPW Engineers) | Deadline: 27.04.2026
+
+Note: Standard PfV requirement is documented in [lessons-learned]. Process gap - MEP team not briefed at project start. See [patterns] for recommendation.
+
+---
+
+### 3 · BCF #52 - Elevator shaft misalignment L05 ✅ CLOSED
+
+Problem: ARCH elevator shaft misaligned with STR structural pylons at Level L05.
+Root cause: Shared coordinates error in linked file.
+Solution: Lee Brown (ARCH) re-acquired shared coordinates during the meeting.
+Resolved: 23.04.2026 - during meeting.`,
+
+      "wiki/patterns/overview.md": `# Patterns Overview - North West Tower
+
+Sources: BEP · Lessons Learned · BCF · Meeting 23.04.2026
+Last updated: 2026-04-23
+
+## ⚠ RECURRING PATTERN 1: MEP/STR duct-beam clashes - corridor zones
+
+Documented in: [lessons-learned] (cross-project standard) + active NWT B1-B2 zone
+Disciplines: MEP vs STR
+
+Pattern: MEP routing not checked against STR beam levels before coordination session.
+Clashes detected reactively - not prevented.
+
+Standard solution: MEP drops below beam. If clearance < 2400mm → STR sleeve/penetration.
+Modelling requirement: PfV with 50mm offset from pipe geometry.
+
+Recommended action: Add corridor zone clearance check as first agenda item before every session. Require MEP coordinator to confirm duct vs beam clearance in meeting prep.
+
+---
+
+## ⚠ RECURRING PATTERN 2: BWIC penetration requests missing insulation
+
+Documented in: [meeting-2026-04-23] · NWT-MEP-BWIC-V1 rejected · 23.04.2026
+Standard from [lessons-learned]: PfV must include insulation thickness + 25mm tolerance
+
+Pattern: MEP submits void families without insulation parameter. Request rejected → resubmit → 3-7 day delay to structural programme.
+
+Root cause: MEP team not briefed on PfV standard at project start. Process gap, not model error.
+
+Recommended action: Add PfV checklist to BEP. BIM Manager to confirm MEP coordinator has read [lessons-learned] at kick-off. Include PfV standard in BIM kick-off agenda as standing item.
+
+---
+
+## Single-occurrence issues (monitor)
+
+| Issue | Source | Risk |
+|-------|--------|------|
+| Shared coordinates error - elevator shaft L05 | Meeting 23.04.2026, BCF #52 | Medium - resolved, check all other linked files |
+| Smoke duct vs ramp clearance B1-B2 | BCF #45-48, open | High - deadline 25.04.2026, owner assigned |
+| ARCH/STR stair alignment | [lessons-learned] | Medium - standard exists, monitor compliance |
+
+---
+
+## Timeline
+
+23 Apr 2026 - Coordination meeting NWT
+  ✅ BCF #52 closed: elevator shaft shared coordinates - fixed during meeting
+  🔴 BCF #45-48 open: smoke ducts vs ramp - Dana Wallis, due 25.04
+  🔴 BWIC open: PfV missing insulation - Dana Wallis, due 27.04
+
+Cross-project: Lessons learned log - 5 standard solutions documented, apply to NWT
+BEP: Interference check required fortnightly before each model exchange`
+    };
+
+    const ROLE_QUESTIONS = {
+      "BIM Coordinator": [
+        "What open actions came out of the 23 April meeting and who owns them?",
+        "Which clash types from the lessons learned log apply to the B1-B2 basement zone?",
+        "What is the standard PfV modelling requirement for MEP penetrations?"
+      ],
+      "BIM Manager": [
+        "What are the top risks on North West Tower right now?",
+        "Which recurring patterns indicate a process gap that should be fixed at BIM kick-off?",
+        "Who is responsible for 3D coordination and what is the meeting cadence on NWT?"
+      ],
+      "Subcontractor": [
+        "What was decided on the smoke extraction duct clash at the B1-B2 ramp?",
+        "Why was the BWIC penetration request rejected and what needs to be resubmitted?",
+        "What LOD is required for mechanical elements at the current developed design stage?"
+      ],
+      "Modeller": [
+        "What LOD do I need for structural beams and columns at detailed design stage?",
+        "What are the exact modelling requirements for HVAC vs structural beam clashes?",
+        "What is the file naming convention for the North West Tower project?"
+      ]
+    };
+
+    // Generic (non-demo) preset questions shown in "Your Project" mode
+    const GENERIC_ROLE_QUESTIONS = {
+      "BIM Coordinator": [
+        "What open actions are currently unresolved and who owns them?",
+        "Which clash types appear most frequently across disciplines?",
+        "What coordination decisions were made in the last meeting?"
+      ],
+      "BIM Manager": [
+        "What are the top project risks identified so far?",
+        "Which recurring issues suggest a process gap we should address?",
+        "What does the BEP say about coordination responsibilities and meeting cadence?"
+      ],
+      "Subcontractor": [
+        "What was decided about my last submission and what needs to be changed?",
+        "What LOD is required for my discipline at the current design stage?",
+        "Are there any open issues I need to action before the next meeting?"
+      ],
+      "Modeller": [
+        "What are the modelling requirements for my discipline at this stage?",
+        "What file naming conventions does the BEP define?",
+        "Which clash patterns should I watch out for based on lessons learned?"
+      ]
+    };
+
+    let ingested = false;
+    let currentMode = 'demo';
+    let uploadedFiles = []; // {name, text}
+
+    const APP_CONFIG = {
+      storage: {
+        apiKey: 'bim-api-key',
+        projects: 'bim-projects',
+        legacyWikiPages: 'bim-wiki-pages'
+      },
+      backupVersion: '1.0',
+      defaultProjectId: 'nwt',
+      disciplineRules: [
+        { name: 'structural', pattern: /\bstr\b|structur|beam|column|slab|footing/i },
+        { name: 'mep', pattern: /\bmep\b|hvac|duct|pipe|sprinkler|mechanical|electrical|plumbing/i },
+        { name: 'architectural', pattern: /\barch\b|architect|wall|ceiling|door|window|partition/i },
+        { name: 'civil', pattern: /\bciv\b|civil|drainage|road|survey|grading/i },
+        { name: 'fire', pattern: /\bfire\b|smoke|suppression|detection/i }
+      ],
+      topicTypeLabels: {
+        clash: 'Clash',
+        'information-required': 'Information Required',
+        comment: 'Comment'
+      },
+      templates: {
+        index: 'wiki/index.md',
+        patterns: 'wiki/patterns/overview.md'
+      }
+    };
+
+    const storageAdapter = {
+      get(key) {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+      },
+      set(key, value) {
+        try { localStorage.setItem(key, value); } catch (e) { }
+      },
+      remove(key) {
+        try { localStorage.removeItem(key); } catch (e) { }
+      }
+    };
+
+    // Multi-project data model
+    let projects = {
+      'nwt': { name: '(DEMO Project - North West Tower)', pages: {}, createdAt: '2026-04-23', insightCount: 0, ingested: false }
+    };
+    let activeProjectId = 'nwt';
+
+    // Backwards-compatible computed wikiPages getter/setter
+    Object.defineProperty(window, 'wikiPages', {
+      get: () => projects[activeProjectId]?.pages || {},
+      set: (v) => { if (projects[activeProjectId]) projects[activeProjectId].pages = v; }
+    });
+
+    // Per-project insightCount shim
+    function getInsightCount() { return projects[activeProjectId]?.insightCount || 0; }
+    function bumpInsightCount() { if (projects[activeProjectId]) projects[activeProjectId].insightCount++; return getInsightCount(); }
+
+    // ── Smart truncation ──────────────────────────────────────────────────────────
+    function smartTruncate(text, maxChars = 200000) {
+      if (text.length <= maxChars) return text;
+      // Try to cut at a paragraph boundary
+      const cutPoint = text.lastIndexOf('\n\n', maxChars);
+      const cut = cutPoint > maxChars * 0.7 ? cutPoint : maxChars;
+      return text.slice(0, cut) + `\n\n[... truncated ${((text.length - cut) / 1000).toFixed(1)}k chars ...]`;
+    }
+
+    function getApiKey() {
+      const val = document.getElementById('apiKeyIngest').value.trim();
+      if (val) storageAdapter.set(APP_CONFIG.storage.apiKey, val);
+      return val || storageAdapter.get(APP_CONFIG.storage.apiKey) || '';
+    }
+
+    function restoreState() {
+      // Restore API key
+      const saved = storageAdapter.get(APP_CONFIG.storage.apiKey);
+      if (saved) {
+        const input = document.getElementById('apiKeyIngest');
+        if (input) input.value = saved;
+      }
+      // Load projects from storage
+      loadProjectsFromStorage();
+      // Render project chips on load
+      renderProjectChips();
+    }
+
+    window.addEventListener('DOMContentLoaded', restoreState);
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('demoSection').style.display = mode === 'demo' ? '' : 'none';
+      document.getElementById('ownSection').style.display = mode === 'own' ? '' : 'none';
+      document.getElementById('modeDemo').classList.toggle('active', mode === 'demo');
+      document.getElementById('modeOwn').classList.toggle('active', mode === 'own');
+
+      const logEl = document.getElementById('logEl');
+      if (logEl) logEl.innerHTML = '';
+
+      const wikiCard = document.getElementById('wikiCard');
+      const queryCard = document.getElementById('queryCard');
+      if (wikiCard) wikiCard.style.display = 'none';
+      if (queryCard) queryCard.style.display = 'none';
+
+      document.getElementById('s1').className = 'step active';
+      document.getElementById('s2').className = 'step';
+
+      // Auto-open the API key panel when switching to own mode
+      const apiDetails = document.querySelector('details.api-section');
+      if (apiDetails) apiDetails.open = (mode === 'own');
+
+      if (mode === 'own') {
+        const saved = storageAdapter.get(APP_CONFIG.storage.legacyWikiPages);
+        if (saved) {
+          const note = document.createElement('div');
+          note.className = 'log-line ok';
+          note.style.display = 'flex';
+          note.style.justifyContent = 'space-between';
+          note.style.alignItems = 'center';
+          note.innerHTML = `
+            <span>✓ Found saved wiki in browser storage - click Parse to reload</span>
+            <button id="clearWikiBtn" style="padding:4px 8px;font-size:11px;color:#dc2626;background:#fee2e2;border:1px solid #fca5a5;border-radius:4px;cursor:pointer;font-weight:500;">Clear memory ❌</button>
+          `;
+          if (logEl) logEl.appendChild(note);
+
+          document.getElementById('clearWikiBtn').onclick = () => {
+            wikiPages = {};
+            projects[activeProjectId].pages = {};
+            storageAdapter.set(APP_CONFIG.storage.legacyWikiPages, null);
+            document.getElementById('wikiCard').style.display = 'none';
+            document.getElementById('queryCard').style.display = 'none';
+            logEl.innerHTML = '<div class="log-line err">⚠️ Knowledge base cleared from memory</div>';
+          };
+        }
+      }
+    }
+
+    async function parseBCFFile(arrayBuffer) {
+      const zip = await JSZip.loadAsync(arrayBuffer);
+      const topics = [];
+
+      // Find all markup.bcf files (pattern: {guid}/markup.bcf)
+      const markupFiles = Object.keys(zip.files).filter(name => /^[^/]+\/markup\.bcf$/i.test(name));
+
+      const parser = new DOMParser();
+
+      for (const path of markupFiles) {
+        const xmlText = await zip.files[path].async('string');
+        const doc = parser.parseFromString(xmlText, 'application/xml');
+
+        const topicEl = doc.querySelector('Topic');
+        if (!topicEl) continue;
+
+        const getText = tag => {
+          const el = topicEl.querySelector(tag);
+          return el ? el.textContent.trim() : '';
+        };
+
+        const topic = {
+          Guid: topicEl.getAttribute('Guid') || path.split('/')[0],
+          TopicType: topicEl.getAttribute('TopicType') || '',
+          TopicStatus: topicEl.getAttribute('TopicStatus') || '',
+          Title: getText('Title'),
+          CreationDate: getText('CreationDate'),
+          CreationAuthor: getText('CreationAuthor'),
+          AssignedTo: getText('AssignedTo'),
+          Description: getText('Description'),
+          Priority: getText('Priority'),
+          DueDate: getText('DueDate'),
+          Comments: []
+        };
+
+        doc.querySelectorAll('Comment').forEach(c => {
+          topic.Comments.push({
+            Date: c.querySelector('Date') ? c.querySelector('Date').textContent.trim() : '',
+            Author: c.querySelector('Author') ? c.querySelector('Author').textContent.trim() : '',
+            Comment: c.querySelector('Comment') ? c.querySelector('Comment').textContent.trim() : ''
+          });
+        });
+
+        topics.push(topic);
+      }
+
+      // Try to read project name from project.bcfp
+      let projectName = 'Unknown Project';
+      const projectFile = zip.files['project.bcfp'] || zip.files['Project.bcfp'];
+      if (projectFile) {
+        try {
+          const projXml = await projectFile.async('string');
+          const projDoc = parser.parseFromString(projXml, 'application/xml');
+          const nameEl = projDoc.querySelector('Name');
+          if (nameEl) projectName = nameEl.textContent.trim();
+        } catch (e) { }
+      }
+
+      // Try to read BCF version
+      let version = '';
+      const versionFile = zip.files['bcf.version'] || zip.files['BCF.version'];
+      if (versionFile) {
+        try {
+          const verXml = await versionFile.async('string');
+          const verDoc = parser.parseFromString(verXml, 'application/xml');
+          const verEl = verDoc.querySelector('Version');
+          if (verEl) version = verEl.getAttribute('VersionId') || verEl.textContent.trim();
+        } catch (e) { }
+      }
+
+      return { projectName, version, topics };
+    }
+
+    function formatDate(isoString) {
+      if (!isoString) return '';
+      return isoString.slice(0, 10); // YYYY-MM-DD
+    }
+
+    function formatBCFAsText(bcfData) {
+      const { projectName, topics } = bcfData;
+      const lines = [];
+      lines.push('BCF Project: ' + projectName);
+      lines.push('Total issues: ' + topics.length);
+      lines.push('');
+
+      topics.forEach((t, idx) => {
+        const shortGuid = t.Guid.replace(/-/g, '').slice(0, 8);
+        lines.push('Issue ' + (idx + 1) + ': [' + shortGuid + ']');
+        lines.push('  Type: ' + (t.TopicType || '[TODO]') + ' | Status: ' + (t.TopicStatus || '[TODO]') + ' | Priority: ' + (t.Priority || '[TODO]'));
+        lines.push('  Title: ' + (t.Title || '[TODO]'));
+        lines.push('  Created: ' + formatDate(t.CreationDate) + ' by ' + (t.CreationAuthor || '[TODO]'));
+        lines.push('  Assigned: ' + (t.AssignedTo || '[TODO]') + ' | Due: ' + formatDate(t.DueDate));
+        if (t.Description) lines.push('  Description: ' + t.Description);
+        if (t.Comments.length > 0) {
+          lines.push('  Comments:');
+          t.Comments.forEach(c => {
+            lines.push('    - ' + formatDate(c.Date) + ' ' + (c.Author || '') + ': ' + (c.Comment || ''));
+          });
+        }
+        lines.push('');
+      });
+
+      return lines.join('\n');
+    }
+
+    function groupBCFByDiscipline(topics) {
+      const groups = {};
+      topics.forEach(t => {
+        const text = (t.Title + ' ' + (t.Description || '')).toLowerCase();
+        const matchedRule = APP_CONFIG.disciplineRules.find(rule => rule.pattern.test(text));
+        const disc = matchedRule ? matchedRule.name : 'general';
+        if (!groups[disc]) groups[disc] = [];
+        groups[disc].push(t);
+      });
+      return groups;
+    }
+
+    function handleFiles(files) {
+      const ingestBtn = document.getElementById('ingestBtn');
+      const reBtn = document.getElementById('reIngestBtn');
+      if (ingested && ingestBtn && ingestBtn.disabled) {
+        ingested = false;
+        document.getElementById('logEl').innerHTML = '';
+        if (reBtn) reBtn.remove();
+        ingestBtn.innerHTML = '\u25b6 Parse & build wiki';
+        ingestBtn.disabled = false;
+      }
+
+      Array.from(files).forEach(file => {
+        if (uploadedFiles.find(f => f.name === file.name || f.name.startsWith(file.name + ' ['))) return;
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'bcf') {
+          const reader = new FileReader();
+          reader.onload = async e => {
+            try {
+              const parsedBCF = await parseBCFFile(e.target.result);
+              const total = parsedBCF.topics.length;
+
+              if (total > 30) {
+                const groups = groupBCFByDiscipline(parsedBCF.topics);
+                const groupEntries = Object.entries(groups);
+                const summaryParts = groupEntries.map(([disc, ts]) => `${ts.length} ${disc}`).join(' · ');
+                // Add summary chip (no remove)
+                const summaryChip = { name: `\u2139 ${file.name} - ${total} issues: ${summaryParts}`, text: '', isSummary: true };
+                uploadedFiles.push(summaryChip);
+                groupEntries.forEach(([disc, topics]) => {
+                  const subBCF = { ...parsedBCF, topics };
+                  uploadedFiles.push({
+                    name: `${file.name} [${disc} · ${topics.length} issues]`,
+                    text: formatBCFAsText(subBCF),
+                    parsedBCF: subBCF,
+                    isBCFBatch: true
+                  });
+                });
+                addLog(`BCF split into ${groupEntries.length} discipline groups for processing`);
+              } else {
+                uploadedFiles.push({ name: file.name, text: formatBCFAsText(parsedBCF), parsedBCF });
+              }
+            } catch (err) {
+              uploadedFiles.push({ name: file.name, text: '[BCF parse error: ' + err.message + ']', parsedBCF: null });
+            }
+            renderFileList();
+          };
+          reader.readAsArrayBuffer(file);
+        } else if (ext === 'pdf') {
+          const reader = new FileReader();
+          reader.onload = async e => {
+            try {
+              pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+              const pdf = await pdfjsLib.getDocument({ data: e.target.result }).promise;
+              let fullText = '';
+              for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                fullText += textContent.items.map(item => item.str).join(' ') + '\n\n';
+              }
+              uploadedFiles.push({ name: file.name, text: fullText.slice(0, 200000) });
+            } catch (err) {
+              uploadedFiles.push({ name: file.name, text: '[PDF parse error: ' + err.message + ']' });
+            }
+            renderFileList();
+          };
+          reader.readAsArrayBuffer(file);
+        } else {
+          const reader = new FileReader();
+          reader.onload = e => {
+            const text = e.target.result;
+            uploadedFiles.push({ name: file.name, text: text.slice(0, 200000) }); // cap per file
+            renderFileList();
+          };
+          // Security/Perf fix: Massive .ifc files (1GB+) will crash the browser OOM.
+          // We only need the first few MB to extract IFC headers or text snippets.
+          const safeSlice = file.slice(0, 1024 * 1024 * 3); // 3MB limit
+          reader.readAsText(safeSlice);
+        }
+      });
+      // Reset input so same file can be selected again
+      document.getElementById('fileInput').value = '';
+    }
+
+    function renderFileList() {
+      const list = document.getElementById('fileList');
+      list.innerHTML = '';
+      uploadedFiles.forEach((f, i) => {
+        const chip = document.createElement('div');
+        chip.className = 'file-chip';
+
+        // Summary chip - plain gray, no remove button
+        if (f.isSummary) {
+          chip.innerHTML = `<span class="bcf-summary" style="flex:1">${f.name}</span>`;
+          list.appendChild(chip);
+          return;
+        }
+
+        const ext = f.name.split('.').pop().toLowerCase();
+        const isBCFBatch = !!f.isBCFBatch;
+        const isBCF = ext === 'bcf' || isBCFBatch;
+        const badgeClass = isBCFBatch ? 'b-info' : (isBCF ? 'b-clash' : 'b-info');
+        const badgeLabel = isBCFBatch ? 'BCF·batch' : ext.toUpperCase();
+        const sizeLabel = isBCF && f.parsedBCF
+          ? f.parsedBCF.topics.length + ' issues'
+          : (f.text.length / 1000).toFixed(1) + 'k chars';
+        const willTruncate = !isBCF && f.text.length > 12000;
+        const truncWarning = willTruncate
+          ? `<span title="File will be truncated to 12k chars for LLM context" style="cursor:help">⚠</span> `
+          : '';
+        const fstatus = f.parsed ? `<span class="fstatus">✓ Parsed</span>` : `<span class="fremove" onclick="removeFile(${i})">×</span>`;
+        chip.innerHTML = `
+      <span class="badge ${badgeClass}" style="min-width:36px;text-align:center">${badgeLabel}</span>
+      <span class="fname">${truncWarning}${f.name}</span>
+      <span class="fsize">${sizeLabel}</span>
+      ${fstatus}`;
+        list.appendChild(chip);
+      });
+    }
+
+    function removeFile(i) {
+      uploadedFiles.splice(i, 1);
+      renderFileList();
+    }
+
+    // ── Backup / Restore all projects ────────────────────────────────────────────
+
+    function exportAllProjects() {
+      const backup = {
+        version: APP_CONFIG.backupVersion,
+        exportedAt: new Date().toISOString(),
+        projects: projects
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bim-wiki-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function migrateBackupSchema(backup) {
+      const normalized = backup && typeof backup === 'object' ? { ...backup } : {};
+      normalized.version = normalized.version || '0.1';
+      normalized.exportedAt = normalized.exportedAt || new Date().toISOString();
+      normalized.projects = normalized.projects || {};
+      Object.entries(normalized.projects).forEach(([id, proj]) => {
+        normalized.projects[id] = {
+          name: proj.name || id,
+          pages: proj.pages || {},
+          createdAt: proj.createdAt || new Date().toISOString().slice(0, 10),
+          insightCount: typeof proj.insightCount === 'number' ? proj.insightCount : 0,
+          ingested: typeof proj.ingested === 'boolean' ? proj.ingested : Object.keys(proj.pages || {}).length > 0
+        };
+      });
+      normalized.version = APP_CONFIG.backupVersion;
+      return normalized;
+    }
+
+    function importAllProjects(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const backup = migrateBackupSchema(JSON.parse(e.target.result));
+          if (!backup.projects) throw new Error('Invalid backup format');
+          Object.entries(backup.projects).forEach(([id, proj]) => {
+            projects[id] = proj;
+          });
+          saveProjectsToStorage();
+          renderProjectChips();
+          const firstId = Object.keys(backup.projects)[0];
+          if (firstId) switchProject(firstId);
+          addLog(`✓ imported ${Object.keys(backup.projects).length} projects from backup`, 'ok');
+        } catch (err) {
+          addLog('import failed: ' + err.message, 'err');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ── Project storage ──────────────────────────────────────────────────────────
+
+    function saveProjectsToStorage() {
+      storageAdapter.set(APP_CONFIG.storage.projects, JSON.stringify(projects));
+    }
+
+    function loadProjectsFromStorage() {
+      try {
+        const s = storageAdapter.get(APP_CONFIG.storage.projects);
+        if (s) {
+          const loaded = migrateBackupSchema({ projects: JSON.parse(s) }).projects;
+          // Merge: keep 'nwt' key but overwrite with stored data if present
+          projects = loaded;
+          // Ensure activeProjectId still exists
+          if (!projects[activeProjectId]) {
+            activeProjectId = Object.keys(projects)[0];
+          }
+        }
+      } catch (e) { }
+    }
+
+    // Legacy single-wiki storage (used only during 'own' mode plain flow)
+    function saveWikiToStorage() {
+      storageAdapter.set(APP_CONFIG.storage.legacyWikiPages, JSON.stringify(wikiPages));
+    }
+
+    function loadWikiFromStorage() {
+      try {
+        const s = storageAdapter.get(APP_CONFIG.storage.legacyWikiPages);
+        return s ? JSON.parse(s) : null;
+      } catch (e) { return null; }
+    }
+
+    // ── Project management ────────────────────────────────────────────────────────
+
+    async function loadDemoBackup() {
+      try {
+        const response = await fetch('demo/demo-backup.json');
+        if (!response.ok) throw new Error('Sample workspace not found');
+        const backup = migrateBackupSchema(await response.json());
+        Object.entries(backup.projects).forEach(([id, proj]) => {
+          projects[id] = proj;
+        });
+        saveProjectsToStorage();
+        renderProjectChips();
+        const firstId = Object.keys(backup.projects)[0];
+        if (firstId) switchProject(firstId);
+        addLog(`Loaded sample workspace (${Object.keys(backup.projects).length} projects)`, 'ok');
+      } catch (err) {
+        addLog('sample workspace load failed: ' + err.message, 'err');
+      }
+    }
+
+    function renderProjectChips() {
+      const container = document.getElementById('projectChips');
+      if (!container) return;
+      container.innerHTML = '';
+      Object.entries(projects).forEach(([id, proj]) => {
+        const pageCount = Object.keys(proj.pages || {}).length;
+        const chip = document.createElement('button');
+        chip.className = 'project-chip' + (id === activeProjectId ? ' active' : '');
+        chip.innerHTML = proj.name + (pageCount > 0 ? `<span class="pcount">${pageCount}p</span>` : '');
+        chip.onclick = () => switchProject(id);
+        container.appendChild(chip);
+      });
+    }
+
+    function switchProject(projectId) {
+      if (!projects[projectId]) return;
+      activeProjectId = projectId;
+      setMode(projectId === 'nwt' ? 'demo' : 'own');
+      ingested = projects[projectId].ingested || false;
+      renderProjectChips();
+      // Reset text areas
+      document.getElementById('answerEl').innerHTML = '';
+      const lintEl = document.getElementById('lintEl');
+      if (lintEl) lintEl.innerHTML = '';
+
+      // Update global wikiPages
+      wikiPages = projects[projectId].pages || {};
+
+      // If this project has pages, re-render wiki and show cards
+      if (Object.keys(wikiPages).length > 0) {
+        ingested = true;
+        renderWikiTabs();
+        buildRoleTabs();
+        document.getElementById('wikiCard').style.display = 'block';
+        document.getElementById('queryCard').style.display = 'block';
+        document.getElementById('s1').className = 'step done';
+        document.getElementById('s2').className = 'step done';
+        document.getElementById('s3').className = 'step active';
+      } else {
+        ingested = false;
+        document.getElementById('wikiCard').style.display = 'none';
+        document.getElementById('queryCard').style.display = 'none';
+        document.getElementById('s1').className = 'step active';
+        document.getElementById('s2').className = 'step';
+        document.getElementById('s3').className = 'step';
+      }
+    }
+
+    function createNewProject() {
+      const name = window.prompt('Project name:', 'My Project');
+      if (!name || !name.trim()) return;
+      // Generate a slug from the name
+      const id = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36);
+      projects[id] = { name: name.trim(), pages: {}, createdAt: new Date().toISOString().slice(0, 10), insightCount: 0, ingested: false };
+      activeProjectId = id;
+      ingested = false;
+      uploadedFiles = [];
+      renderFileList();
+      document.getElementById('logEl').innerHTML = '';
+      renderProjectChips();
+      // Hide wiki/query cards for the new empty project
+      document.getElementById('wikiCard').style.display = 'none';
+      document.getElementById('queryCard').style.display = 'none';
+      document.getElementById('s1').className = 'step active';
+      document.getElementById('s2').className = 'step';
+      document.getElementById('s3').className = 'step';
+      saveProjectsToStorage();
+    }
+
+    function handleBottomTabDemo() {
+      if (!projects['nwt']) {
+        projects['nwt'] = { name: '(DEMO Project - North West Tower)', pages: {}, createdAt: '2026-04-23', insightCount: 0, ingested: false };
+      }
+      switchProject('nwt');
+    }
+
+    function handleBottomTabOwn() {
+      const ownIds = Object.keys(projects).filter(id => id !== 'nwt');
+      if (ownIds.length > 0) {
+        switchProject(ownIds[0]);
+      } else {
+        const id = 'proj_' + Date.now();
+        projects[id] = { name: 'My Project', pages: {}, createdAt: new Date().toISOString().slice(0, 10), insightCount: 0, ingested: false };
+        switchProject(id);
+      }
+    }
+
+    // Re-render wiki tabs from current wikiPages (used by switchProject)
+    function renderWikiTabs() {
+      const tabs = document.getElementById('tabsEl');
+      const wikiEl = document.getElementById('wikiEl');
+      const tabDescEl = document.getElementById('tabDescEl');
+      tabs.innerHTML = '';
+      const pages = wikiPages;
+      Object.keys(pages).forEach((path, i) => {
+        const label = path.split('/').pop().replace('.md', '');
+        const t = document.createElement('button');
+        t.className = 'tab' + (i === 0 ? ' active' : '');
+        t.textContent = label;
+        t.onclick = () => {
+          document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+          t.classList.add('active');
+          wikiEl.textContent = pages[path];
+          tabDescEl.textContent = TAB_DESCRIPTIONS[label] || path;
+        };
+        tabs.appendChild(t);
+      });
+      if (Object.keys(pages).length > 0) {
+        wikiEl.textContent = Object.values(pages)[0];
+        const firstLabel = Object.keys(pages)[0].split('/').pop().replace('.md', '');
+        tabDescEl.textContent = TAB_DESCRIPTIONS[firstLabel] || '';
+      }
+      // Render pattern tags
+      const pEl = document.getElementById('patternsEl');
+      pEl.innerHTML = '';
+      const overviewPage = Object.entries(pages).find(([k]) => k.includes('overview') || k.includes('pattern'));
+      if (overviewPage) {
+        const matches = overviewPage[1].match(/⚠ RECURRING PATTERN[^\n]*/g) || [];
+        matches.forEach(m => { const s = document.createElement('span'); s.className = 'ptag'; s.textContent = m.slice(0, 80); pEl.appendChild(s); });
+      }
+    }
+
+    function exportWiki() {
+      const blob = new Blob([JSON.stringify(wikiPages, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bim-wiki-backup.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function exportWikiZip() {
+      const zip = new JSZip();
+      for (const [path, content] of Object.entries(wikiPages)) {
+        zip.file(path, content);
+      }
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'LLM_BIM_WIKI_Markdown.zip';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importWiki() {
+      document.getElementById('importFileInput').click();
+    }
+
+    function handleImportFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          // Merge imported pages into existing wikiPages
+          Object.assign(wikiPages, imported);
+          // Re-render tabs
+          const tabs = document.getElementById('tabsEl');
+          const wikiEl = document.getElementById('wikiEl');
+          const tabDescEl = document.getElementById('tabDescEl');
+          tabs.innerHTML = '';
+          Object.keys(wikiPages).forEach((path, i) => {
+            const label = path.split('/').pop().replace('.md', '');
+            const t = document.createElement('button');
+            t.className = 'tab' + (i === 0 ? ' active' : '');
+            t.textContent = label;
+            t.onclick = () => {
+              document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+              t.classList.add('active');
+              wikiEl.textContent = wikiPages[path];
+              tabDescEl.textContent = TAB_DESCRIPTIONS[label] || path;
+            };
+            tabs.appendChild(t);
+          });
+          wikiEl.textContent = Object.values(wikiPages)[0];
+          const firstLabel = Object.keys(wikiPages)[0].split('/').pop().replace('.md', '');
+          tabDescEl.textContent = TAB_DESCRIPTIONS[firstLabel] || '';
+          addLog('✓ imported ' + Object.keys(imported).length + ' pages from ' + file.name, 'ok');
+        } catch (e) {
+          addLog('import failed - invalid JSON file', 'err');
+        }
+        input.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    function parseWikiJSON(raw) {
+      // Strip markdown code fences
+      let cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+
+      // Try direct parse first
+      try { return JSON.parse(cleaned); } catch (e1) { }
+
+      // Try to extract the largest {...} block
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (match) {
+        try { return JSON.parse(match[0]); } catch (e2) { }
+      }
+
+      // Fallback: wrap raw response as a single wiki page - never throw to user
+      return { "wiki/notes.md": raw };
+    }
+
+    async function ingestSingleFile(file, existingWiki, apiKey) {
+      const existingSummary = Object.keys(existingWiki).length > 0
+        ? `\nExisting wiki pages (already built, update or extend these):\n${Object.keys(existingWiki).join('\n')}\n\nExisting index:\n${existingWiki['wiki/index.md'] || '(none yet)'}`
+        : '';
+
+      const schema = `Wiki structure rules:
+- wiki/index.md - master index, quick stats table, links to all pages
+- wiki/disciplines/{name}.md - per discipline (e.g., structural, mep, architecture)
+- wiki/meetings/{YYYY-MM-DD}.md - meeting minutes, action items with owners/deadlines
+- wiki/bep.md - BIM Execution Plan: LOD matrix, team contacts, goals, QC
+- wiki/lessons-learned.md - standard solutions table with modelling requirements
+- wiki/clashes.md - central matrix for all clash types and resolution rules
+
+CRITICAL STRUCTURAL RULES:
+1. MAX 5 PAGES per document. DO NOT create a separate page for every single topic.
+2. Group ALL clash types and resolutions into a single page called "wiki/clashes.md".
+3. Use real IDs, names, dates from the text.
+4. Flag "⚠ RECURRING PATTERN" when the same root cause appears 2+ times.`;
+
+      const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: 'google/gemini-2.0-flash-001',
+          max_tokens: 4000,
+          response_format: { type: 'json_object' },
+          messages: [
+            {
+              role: 'system', content: `You are a BIM wiki builder. Given ONE document, generate or update wiki pages as a JSON object.
+
+${schema}
+${existingSummary}
+
+CRITICAL INSTRUCTIONS:
+1. Extract and write ACTUAL content (numbers, names, rules, decisions).
+2. NEVER write placeholders like "Needs content" or "TODO". If you lack info for a section, omit it entirely.
+3. BE EXHAUSTIVE WITH FACTS: Do NOT summarize away technical details. You must preserve ALL specific rules, tolerances, measurements, naming conventions, and engineering constraints exactly as written. You may discard boilerplate/fluff, but keep every single hard fact.
+4. NEVER truncate or abbreviate tables. You MUST extract every single row and column from every table. DO NOT add "Example" to table headers.
+5. Return ONLY a valid JSON object. Example: {"wiki/index.md": "# ..."}
+6. CRITICAL JSON RULE: You MUST escape all newlines as \\n inside strings. NEVER use literal raw newlines inside the JSON string values or the parser will crash.
+7. Generate only pages relevant to THIS document. Update wiki/index.md always.` },
+            { role: 'user', content: `Document: ${file.name}\n\n${smartTruncate(file.text)}` }
+          ]
+        })
+      });
+
+      const data = await r.json();
+      if (data.error) throw new Error(data.error.message || 'API error');
+      const raw = data.choices[0].message.content;
+      return parseWikiJSON(raw);
+    }
+
+    async function hashFileContent(text) {
+      const encoder = new TextEncoder();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(text));
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function buildWikiFromFiles() {
+      const apiKey = getApiKey();
+      let mergedWiki = { ...wikiPages };
+      let sessionLog = `\n## [${new Date().toISOString().split('T')[0]}] Ingest Session\n`;
+
+      const totalChars = uploadedFiles.reduce((s, f) => s + f.text.length, 0);
+      if (totalChars > 80000) {
+        addLog(`\u26a0 large input (${(totalChars / 1000).toFixed(0)}k chars) \u2014 processing file by file, may take a while`);
+      }
+
+      for (let i = 0; i < uploadedFiles.length; i++) {
+        const f = uploadedFiles[i];
+        if (f.parsed) continue;
+
+        const logNode = addLog(`[${i + 1}/${uploadedFiles.length}] processing: ${f.name}...`);
+
+        // Start progress ticker for this file
+        const ticker = setInterval(() => { if (logNode) logNode.textContent += '.'; }, 2000);
+
+        try {
+          const hash = await hashFileContent(f.name + f.text);
+          let fileCache = {};
+          try { fileCache = JSON.parse(storageAdapter.get('bim-file-cache') || '{}'); } catch (e) { }
+
+          let fileWiki = fileCache[hash];
+          if (fileWiki) {
+            clearInterval(ticker);
+            if (logNode) logNode.textContent = `\u2713 [${i + 1}/${uploadedFiles.length}] ${f.name} (⚡ Cached SHA256)`;
+            if (logNode) logNode.className = 'log-line ok';
+            sessionLog += `- Loaded ${f.name} from cache\n`;
+          } else {
+            fileWiki = await ingestSingleFile(f, mergedWiki, apiKey);
+            fileCache[hash] = fileWiki;
+            storageAdapter.set('bim-file-cache', JSON.stringify(fileCache));
+
+            clearInterval(ticker);
+            const pageCount = Object.keys(fileWiki).length;
+            if (logNode) logNode.textContent = `\u2713 [${i + 1}/${uploadedFiles.length}] ${f.name} \u2192 ${pageCount} pages`;
+            if (logNode) logNode.className = 'log-line ok';
+            sessionLog += `- Parsed ${f.name} (${pageCount} wiki pages updated/created)\n`;
+          }
+
+          mergedWiki = { ...mergedWiki, ...fileWiki };
+          f.parsed = true;
+        } catch (err) {
+          clearInterval(ticker);
+          if (logNode) logNode.textContent = `\u26a0 [${i + 1}/${uploadedFiles.length}] ${f.name}: ${err.message}`;
+          if (logNode) logNode.className = 'log-line err';
+        }
+      }
+
+      if (Object.keys(mergedWiki).length === 0) throw new Error('No wiki pages generated');
+
+      const oldLog = mergedWiki['wiki/log.md'] || '# System Log\nChronological record of ingest operations.\n';
+      mergedWiki['wiki/log.md'] = oldLog + sessionLog;
+
+      return mergedWiki;
+    }
+
+    function addLog(msg, cls) {
+      const el = document.getElementById('logEl');
+      const d = document.createElement('div');
+      d.className = 'log-line' + (cls ? ' ' + cls : '');
+      d.textContent = msg;
+      el.appendChild(d);
+      return d;
+    }
+
+    function showWikiDiff(oldPages, newPages) {
+      const added = Object.keys(newPages).filter(k => !oldPages[k]);
+      const updated = Object.keys(newPages).filter(k => oldPages[k] && oldPages[k] !== newPages[k]);
+      const removed = Object.keys(oldPages).filter(k => !newPages[k]);
+
+      if (added.length === 0 && updated.length === 0 && removed.length === 0) {
+        addLog('wiki unchanged \u2014 no differences detected');
+        return;
+      }
+      if (added.length > 0) addLog(`+ added: ${added.map(k => k.split('/').pop().replace('.md', '')).join(', ')}`, 'ok');
+      if (updated.length > 0) addLog(`~ updated: ${updated.map(k => k.split('/').pop().replace('.md', '')).join(', ')}`);
+      if (removed.length > 0) addLog(`- removed: ${removed.map(k => k.split('/').pop().replace('.md', '')).join(', ')}`, 'err');
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function runIngest() {
+      const btn = document.getElementById('ingestBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Processing...';
+      document.getElementById('logEl').innerHTML = '';
+
+      // Snapshot old wiki for diff after re-ingest
+      const oldWikiPages = { ...wikiPages };
+
+      try {
+        if (currentMode === 'own') {
+          // ── REAL INGEST from uploaded files ──
+          if (uploadedFiles.length === 0) {
+            const saved = loadWikiFromStorage();
+            if (saved) {
+              addLog('loading wiki from browser storage...');
+              await sleep(400);
+              wikiPages = saved;
+              addLog('\u2713 loaded ' + Object.keys(saved).length + ' pages from storage', 'ok');
+            } else {
+              addLog('no files uploaded and no saved wiki found', 'err');
+              btn.disabled = false; btn.textContent = '\u25b6 Parse & build wiki';
+              return;
+            }
+          } else {
+            // Check if wiki exists to ask user about append vs fresh
+            const hasExistingWiki = Object.keys(wikiPages).length > 0;
+            if (hasExistingWiki) {
+              const choice = await new Promise(resolve => {
+                const logEl = document.getElementById('logEl');
+                const box = document.createElement('div');
+                box.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:10px 0;display:flex;flex-direction:column;gap:10px;';
+                box.innerHTML = `
+                  <div style="font-size:13px;font-weight:600;color:var(--text-primary)">This project already has a knowledge base (${Object.keys(wikiPages).length} pages)</div>
+                  <div style="font-size:12px;color:var(--text-secondary)">What would you like to do with the newly uploaded files?</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+                    <button id="_choiceAdd" style="flex:1;padding:9px 14px;font-size:12px;font-weight:500;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;cursor:pointer">➕ Add to existing wiki<br><span style="font-weight:400;color:var(--text-muted);font-size:10px;display:block;margin-top:2px;">Keeps previous pages</span></button>
+                    <button id="_choiceFresh" style="flex:1;padding:9px 14px;font-size:12px;font-weight:500;font-family:var(--font);border:1px solid #fca5a5;border-radius:var(--radius-sm);background:#fef2f2;cursor:pointer;color:#dc2626">🗑 Start fresh<br><span style="font-weight:400;color:#ef4444;font-size:10px;display:block;margin-top:2px;">Clears all previous pages</span></button>
+                  </div>`;
+                logEl.appendChild(box);
+                box.querySelector('#_choiceAdd').onclick = () => { box.remove(); resolve('add'); };
+                box.querySelector('#_choiceFresh').onclick = () => { box.remove(); resolve('fresh'); };
+              });
+              if (choice === 'fresh') {
+                wikiPages = {};
+                projects[activeProjectId].pages = {};
+                uploadedFiles = uploadedFiles.filter(f => !f.parsed);
+                renderFileList();
+                addLog('⚠️ previous wiki cleared - starting fresh', 'err');
+              } else {
+                addLog('adding to existing wiki (' + Object.keys(wikiPages).length + ' existing pages)');
+              }
+            }
+
+            uploadedFiles.forEach(f => addLog('reading: ' + f.name + ' (' + (f.text.length / 1000).toFixed(1) + 'k chars)'));
+            await sleep(300);
+            let generated;
+            generated = await buildWikiFromFiles();
+            showWikiDiff(oldWikiPages, generated);
+            wikiPages = generated;
+            saveWikiToStorage();
+            addLog('✓ wiki saved to browser storage - persists on refresh', 'ok');
+            addLog('done: ' + Object.keys(generated).length + ' pages generated', 'ok');
+          }
+        } else {
+          // ── DEMO INGEST (simulated) ──
+          // Ensure 'nwt' project exists and switch to it
+          if (!projects['nwt']) {
+            projects['nwt'] = { name: '(DEMO Project - North West Tower)', pages: {}, createdAt: '2026-04-23', insightCount: 0 };
+          }
+          activeProjectId = 'nwt';
+          wikiPages = WIKI;
+          addLog('parsing: north_west_tower_BEP.pdf (19 pages)');
+          await sleep(500);
+          addLog('→ team: 8 contacts, LOD matrix: 40+ elements, 4 BIM goals');
+          await sleep(400);
+          addLog('parsing: clash_types.bcf');
+          await sleep(300);
+          addLog('→ 9 clash categories, 2 active BCF issues');
+          await sleep(400);
+          addLog('parsing: lessons_learned.xlsx');
+          await sleep(300);
+          addLog('→ 5 standard solutions, PfV requirements');
+          await sleep(400);
+          addLog('parsing: coordination_meeting_23042026.txt');
+          await sleep(300);
+          addLog('→ 3 action items: BCF #45-48 (open), BWIC (open), BCF #52 (closed)');
+          await sleep(300);
+          addLog('calling LLM → compiling wiki...');
+          await sleep(1200);
+          ['wiki/projects/nwt.md', 'wiki/bep.md', 'wiki/lessons-learned.md',
+            'wiki/clash-types.md', 'wiki/meetings/2026-04-23.md',
+            'wiki/patterns/overview.md', 'wiki/index.md'].forEach(async (p, i) => {
+              await sleep(i * 120);
+              addLog('✓ ' + p, 'ok');
+            });
+          await sleep(1000);
+          addLog('done: 7 pages · 2 recurring patterns · 2 open actions flagged', 'ok');
+        }
+      } catch (err) {
+        addLog('error: ' + err.message, 'err');
+        btn.disabled = false; btn.innerHTML = '▶ Parse & build wiki';
+        return;
+      }
+
+      // ── RENDER WIKI ──
+      const tabs = document.getElementById('tabsEl');
+      const wikiEl = document.getElementById('wikiEl');
+      const tabDescEl = document.getElementById('tabDescEl');
+      tabs.innerHTML = '';
+      Object.keys(wikiPages).forEach((path, i) => {
+        const label = path.split('/').pop().replace('.md', '');
+        const t = document.createElement('button');
+        t.className = 'tab' + (i === 0 ? ' active' : '');
+        t.textContent = label;
+        t.onclick = () => {
+          document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+          t.classList.add('active');
+          wikiEl.textContent = wikiPages[path];
+          tabDescEl.textContent = TAB_DESCRIPTIONS[label] || path;
+        };
+        tabs.appendChild(t);
+      });
+      wikiEl.textContent = Object.values(wikiPages)[0];
+      const firstLabel = Object.keys(wikiPages)[0].split('/').pop().replace('.md', '');
+      tabDescEl.textContent = TAB_DESCRIPTIONS[firstLabel] || '';
+
+      // patterns from overview page or generic
+      const pEl = document.getElementById('patternsEl');
+      pEl.innerHTML = '';
+      if (currentMode === 'demo') {
+        ['MEP/STR duct-beam clashes - corridor zones (cross-project)', 'BWIC without insulation - process gap (NWT)'].forEach(p => {
+          const s = document.createElement('span'); s.className = 'ptag'; s.textContent = '⚠ ' + p; pEl.appendChild(s);
+        });
+      } else {
+        const overviewPage = Object.entries(wikiPages).find(([k]) => k.includes('overview') || k.includes('pattern'));
+        if (overviewPage) {
+          const matches = overviewPage[1].match(/⚠ RECURRING PATTERN[^\n]*/g) || [];
+          matches.forEach(m => { const s = document.createElement('span'); s.className = 'ptag'; s.textContent = m.slice(0, 80); pEl.appendChild(s); });
+        }
+      }
+
+      document.getElementById('wikiCard').style.display = 'block';
+      document.getElementById('queryCard').style.display = 'block';
+      document.getElementById('s1').className = 'step done';
+      document.getElementById('s2').className = 'step done';
+      document.getElementById('s3').className = 'step active';
+      btn.innerHTML = '\u2713 Wiki built';
+      ingested = true;
+      if (projects[activeProjectId]) projects[activeProjectId].ingested = true;
+      saveProjectsToStorage();
+      renderProjectChips();
+
+      // Feature 3a - update wiki card description with project name and page count
+      const pageCount = Object.keys(wikiPages).length;
+      const projName = projects[activeProjectId] ? projects[activeProjectId].name : 'Project';
+      const descEl = document.getElementById('wikiCardDesc');
+      if (descEl) descEl.textContent = `${projName} · ${pageCount} pages compiled. Each page is a living article - cross-referenced, updated on each ingest.`;
+
+      // Add "↻ Add documents" button next to the main button
+      const existingReBtn = document.getElementById('reIngestBtn');
+      if (existingReBtn) existingReBtn.remove();
+      const reBtn = document.createElement('button');
+      reBtn.id = 'reIngestBtn';
+      reBtn.className = 'run-btn';
+      reBtn.style.marginLeft = '8px';
+      reBtn.style.fontSize = '12px';
+      reBtn.innerHTML = '\u21bb Add documents';
+      reBtn.onclick = () => {
+        ingested = false;
+        uploadedFiles.forEach(f => f.parsed = true);
+        renderFileList();
+        document.getElementById('logEl').innerHTML = '';
+        setMode('own');
+        reBtn.remove();
+        btn.innerHTML = '\u25b6 Parse & build wiki';
+        btn.disabled = false;
+      };
+      btn.parentNode.insertBefore(reBtn, btn.nextSibling);
+    }
+
+    const TAB_DESCRIPTIONS = {
+      "index": "Navigation hub - quick stats, links to all pages, project summary at a glance",
+      "nwt": "Project overview - team contacts, schedule, BIM goals, open actions from last meeting",
+      "bep": "BIM Execution Plan - LOD matrix by phase, meeting cadence, file naming, QC process",
+      "lessons-learned": "Standard solutions - 5 cross-project clash rules with modelling requirements. Apply before each session.",
+      "clash-types": "BCF clash catalogue - 9 typical categories, active issues (BCF #45-48 open, #52 closed)",
+      "2026-04-23": "Meeting minutes 23 Apr - 3 action items: smoke duct clash (open), BWIC rejected (open), elevator shaft (closed)",
+      "overview": "Pattern intelligence - 2 recurring patterns flagged across documents, 1 monitor"
+    };
+
+    function mdToHtml(text) {
+      return text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^### (.+)$/gm, '<h4 style="margin:10px 0 4px;font-size:13px;color:#555">$1</h4>')
+        .replace(/^## (.+)$/gm, '<h3 style="margin:12px 0 4px;font-size:14px">$1</h3>')
+        .replace(/^[\*\-] (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/gs, '<ul style="margin:6px 0 6px 16px;padding:0">$1</ul>')
+        .replace(/\n\n/g, '<br>');
+    }
+
+    async function runLint() {
+      const btn = document.getElementById('lintBtn');
+      const lintEl = document.getElementById('lintEl');
+      btn.disabled = true;
+      btn.textContent = '🔍 Checking wiki...';
+      lintEl.innerHTML = '';
+
+      const wikiDump = Object.entries(wikiPages).map(([p, c]) => `### ${p}\n${c}`).join('\n\n---\n\n');
+      const apiKey = getApiKey();
+
+      try {
+        if (currentMode === 'demo') {
+          setTimeout(() => {
+            const div = document.createElement('div');
+            div.className = 'lint-report';
+            div.style.whiteSpace = 'normal';
+            div.innerHTML = '<strong style="font-size:11px;color:#92400e;text-transform:uppercase;letter-spacing:.05em">Lint report</strong><br><br><b>🔴 Critical:</b> The MEP PfV offset rule in [lessons-learned.md] contradicts the updated BEP standard.<br><b>🟡 Medium:</b> [wiki/disciplines/structural.md] lacks links to recent BCF #45-48 issue pages.<br><b>⚪ Resolved:</b> Orphan pages deleted.<br><br><b>Overall Health Score: 85/100</b>';
+            lintEl.appendChild(div);
+            btn.disabled = false;
+            btn.textContent = '🔍 Lint wiki - check for contradictions & gaps';
+          }, 1200);
+          return;
+        }
+
+        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: 'google/gemini-2.0-flash-001',
+            max_tokens: 600,
+            messages: [
+              { role: 'system', content: 'You are a BIM wiki linter. Analyse all wiki pages and produce a structured health report. Check for: 1) Contradictions between pages (same topic, different info), 2) Stale data that may have been superseded by newer documents, 3) Gaps - important BIM information that is missing, 4) Redundant content that could be merged. Format each finding with severity: 🔴 Critical · 🟡 Medium · 🟢 Low. End with a one-line overall health score. RETURN ONLY PLAIN MARKDOWN TEXT. DO NOT RETURN JSON. NEVER USE MARKDOWN CODE BLOCKS.' },
+              { role: 'user', content: `Wiki to lint:\n\n${wikiDump}` }
+            ]
+          })
+        });
+        const data = await r.json();
+        const div = document.createElement('div');
+        div.className = 'lint-report';
+        div.style.whiteSpace = 'normal';
+        div.innerHTML = '<strong style="font-size:11px;color:#92400e;text-transform:uppercase;letter-spacing:.05em">Lint report</strong><br><br>' + mdToHtml(data.choices[0].message.content);
+        lintEl.appendChild(div);
+      } catch (e) {
+        lintEl.innerHTML = '<div class="lint-report">Lint failed - check API key.</div>';
+      }
+      btn.disabled = false;
+      btn.textContent = '🔍 Lint wiki - check for contradictions & gaps';
+    }
+
+    async function runCrossProjectAnalysis() {
+      const btn = document.getElementById('crossBtn');
+      const lintEl = document.getElementById('lintEl');
+      btn.disabled = true;
+      btn.textContent = '🔗 Analysing...';
+      lintEl.innerHTML = '';
+
+      if (currentMode === 'demo') {
+        setTimeout(() => {
+          const div = document.createElement('div');
+          div.className = 'lint-report';
+          div.style.whiteSpace = 'normal';
+          div.style.background = '#fffef0';
+          div.innerHTML = '<strong style="font-size:11px;color:#92400e;text-transform:uppercase;letter-spacing:.05em">Cross-project pattern analysis</strong><br><br><b>Theme 1: Inter-Disciplinary Coordination</b><br><b>🔴 Pattern:</b> MEP clashes with structural elements.<br><b>Root Cause:</b> Reactive clash detection.<br><b>🟢 Recommendation:</b> Standardize Clearance Checks.<br><br><b>Theme 2: Monitoring & Enforcement</b><br><b>🟡 Pattern:</b> Inconsistent application of existing standards.<br><b>Root Cause:</b> Lack of consistent enforcement.<br><b>🟢 Recommendation:</b> BEP Enforcement.';
+          lintEl.appendChild(div);
+          btn.disabled = false;
+          btn.textContent = '🔗 Cross-project patterns';
+        }, 1200);
+        return;
+      }
+
+      // Collect patterns/overview.md from all projects that have pages
+      const projectPatterns = Object.entries(projects)
+        .filter(([, proj]) => Object.keys(proj.pages || {}).length > 0)
+        .map(([id, proj]) => {
+          const overviewKey = Object.keys(proj.pages).find(k => k.includes('overview') || k.includes('pattern'));
+          const overview = overviewKey ? proj.pages[overviewKey] : '(no patterns page)';
+          return `### Project: ${proj.name}\n${overview}`;
+        });
+
+      if (projectPatterns.length === 0) {
+        lintEl.innerHTML = '<div class="lint-report">No projects with wiki pages found. Run ingest on at least one project first.</div>';
+        btn.disabled = false;
+        btn.textContent = '🔗 Cross-project patterns';
+        return;
+      }
+
+      if (projectPatterns.length < 2) {
+        lintEl.innerHTML = '<div class="lint-report" style="background:#fffdf5;border-color:#fde68a">Only one project has wiki pages. Add a second project and ingest its documents to enable cross-project analysis.</div>';
+        btn.disabled = false;
+        btn.textContent = '🔗 Cross-project patterns';
+        return;
+      }
+
+      const apiKey = getApiKey();
+      const combined = projectPatterns.join('\n\n---\n\n');
+
+      try {
+        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: 'google/gemini-2.0-flash-001',
+            max_tokens: 700,
+            messages: [
+              { role: 'system', content: 'You are a BIM knowledge analyst reviewing patterns across multiple projects. Identify patterns that repeat across projects, common root causes, and company-wide recommendations. Format with severity icons (🔴/🟡/🟢) and group by theme. RETURN ONLY PLAIN MARKDOWN TEXT. DO NOT RETURN JSON. NEVER USE MARKDOWN CODE BLOCKS.' },
+              { role: 'user', content: `Patterns pages from all projects:\n\n${combined}\n\nIdentify patterns that repeat across multiple projects. What root causes keep appearing? What recommendations apply company-wide?` }
+            ]
+          })
+        });
+        const data = await r.json();
+        const div = document.createElement('div');
+        div.className = 'lint-report';
+        div.style.whiteSpace = 'normal';
+        div.style.background = '#fffef0';
+        div.style.borderColor = '#fde68a';
+        div.innerHTML = '<strong style="font-size:11px;color:#92400e;text-transform:uppercase;letter-spacing:.05em">Cross-project pattern analysis - ' + projectPatterns.length + ' projects</strong><br><br>' + mdToHtml(data.choices[0].message.content);
+        lintEl.appendChild(div);
+      } catch (e) {
+        lintEl.innerHTML = '<div class="lint-report">Cross-project analysis failed - check API key.</div>';
+      }
+      btn.disabled = false;
+      btn.textContent = '🔗 Cross-project patterns';
+    }
+
+    async function runQuery() {
+      if (!ingested) return;
+      const q = document.getElementById('qInput').value.trim();
+      if (!q) return;
+      const btn = document.getElementById('askBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+      const answerEl = document.getElementById('answerEl');
+      answerEl.innerHTML = '';
+
+      const wikiDump = Object.entries(wikiPages).map(([p, c]) => `<document name="${p}">\n${c}\n</document>`).join('\n\n');
+      const systemPrompt = `You are a BIM knowledge assistant. Answer using ONLY information from the wiki pages provided below.
+
+MANDATORY OUTPUT RULES - follow these exactly:
+1. **Always cite sources** in square brackets after every claim: [bep], [lessons-learned], [meeting-2026-04-23], etc. Use the exact wiki page name (without path prefix and .md).
+2. **Include BCF identifiers** - if the wiki mentions a BCF task title, ID, or GUID, include it in your answer (e.g., BCF #45 or GUID: 5c6b4b45-...).
+3. **Reference specific BEP sections** - if the wiki mentions a BEP rule, clause, or table, cite it explicitly (e.g., "per BEP Table 3.6 - ±10mm tolerance [bep]").
+4. **Format Action Items** as a numbered list with: owner name, task, and deadline if known.
+5. If the wiki does not contain the answer, state that clearly - do not hallucinate.
+6. Do NOT copy or repeat answers from previous Q&A documents. You must generate a fresh answer for the NEW USER QUESTION at the bottom.
+
+Answer format example:
+The ceiling height issue created 14 hard clashes between HVAC and structural [meeting-2026-04-10]. These exceed the ±10mm tolerance defined in BEP Table 3.6 [bep]. BCF Task "Hard Clash: Duct vs Beam" (ID: 5c6b4b45) is currently open [bcf_export].
+**Action Items:**
+1. MEP Engineer: Export remaining clashes - Due 2024-04-19 [meeting-2026-04-11]
+2. STR Engineer: Review web penetrations in downstand beams [meeting-2026-04-11]`;
+
+      try {
+        const apiKey = getApiKey();
+
+        if (currentMode === 'demo' && !apiKey) {
+          const mockAnswers = {
+            "What open actions came out of the 23 April meeting and who owns them?": "Based on <b>[meeting-2026-04-23]</b>, there are 2 open actions:<br>1. BCF #45-48 (Smoke ducts vs ramp) - Dana Wallis (MEP)<br>2. BWIC (Penetrations missing insulation) - Dana Wallis (MEP)",
+            "Which clash types from the lessons learned log apply to the B1-B2 basement zone?": "According to <b>[clash-types]</b>, B1-B2 is an active clash zone due to smoke extraction ducts vs ramp clearance. <b>[lessons-learned]</b> doesn't have a standard solution for this custom redesign, which requires changing the duct section to rectangular.",
+            "What is the standard PfV modelling requirement for MEP penetrations?": "<b>[lessons-learned]</b> requires a PfV with a 50mm offset. However, <b>[meeting-2026-04-23]</b> reinforced that MEP must also include insulation thickness + a 25mm installation tolerance.",
+            "What are the top risks on North West Tower right now?": "According to <b>[patterns]</b>, the top risks are:<br>1. <b>High Risk</b>: Smoke duct vs ramp clearance (deadline 25.04).<br>2. <b>Process Gap</b>: BWIC submissions missing insulation standards, causing 3-7 day structural delays.",
+            "Which recurring patterns indicate a process gap that should be fixed at BIM kick-off?": "Pattern 2 in <b>[patterns]</b> highlights that the MEP team wasn't briefed on the PfV (insulation) standard at kick-off. It recommends adding a PfV checklist to the BEP to prevent future project delays.",
+            "Who is responsible for 3D coordination and what is the meeting cadence on NWT?": "According to <b>[bep]</b>, ALL disciplines are responsible for 3D Coordination. The BIM Manager (Jim Bim) facilitates the design coordination meetings <b>fortnightly on Thursdays at 4pm</b>.",
+            "What was decided on the smoke extraction duct clash at the B1-B2 ramp?": "In <b>[meeting-2026-04-23]</b>, it was decided that Dana Wallis (MEP) will change the duct section from round to rectangular to maintain clearance under 2200mm.",
+            "Why was the BWIC penetration request rejected and what needs to be resubmitted?": "The NWT-MEP-BWIC-V1 model was rejected because it didn't account for pipe insulation. You must update your void families to include the insulation thickness parameter + 25mm installation tolerance (<b>[meeting-2026-04-23]</b>).",
+            "What LOD is required for mechanical elements at the current developed design stage?": "The current stage is Developed Design. According to the LOD Matrix in <b>[bep]</b>, HVAC ductwork, sprinklers, and hydraulic pipework are required to be at <b>LOD 200</b>.",
+            "What LOD do I need for structural beams and columns at detailed design stage?": "According to the LOD Matrix in <b>[bep]</b>, structural beams and columns must be modeled to <b>LOD 300</b> at the Detailed Design stage.",
+            "What are the exact modelling requirements for HVAC vs structural beam clashes?": "From <b>[lessons-learned]</b>: If clearance drops below 2400mm, you must submit a sleeve/penetration request to STR. You must create a Provision for Void (PfV) element with a 50mm offset from the pipe geometry.",
+            "What is the file naming convention for the North West Tower project?": "According to the <b>[bep]</b> file naming conventions, models should be prefixed by their discipline abbreviation. Examples: ARCH-NWT, STRUCT-NWT, MECH-NWT, ELEC-NWT, FIRE-NWT."
+          };
+
+          setTimeout(() => {
+            if (mockAnswers[q]) {
+              answerEl.innerHTML = mockAnswers[q];
+            } else {
+              answerEl.innerHTML = "<span style='color:#b91c1c'><b>Demo mode (No API Key):</b></span> I can only answer the preset questions shown above.<br><br>To ask custom questions, please enter a free OpenRouter/Anthropic API key.";
+            }
+            btn.disabled = false;
+            btn.innerHTML = 'Ask';
+          }, 700);
+          return;
+        }
+
+        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.0-flash-001',
+            max_tokens: 500,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `<wiki>\n${wikiDump}\n</wiki>\n\nUser Question: ${q}` }
+            ]
+          })
+        });
+        const data = await r.json();
+        const text = data.choices[0].message.content;
+        const div = document.createElement('div');
+        div.className = 'answer';
+        div.style.whiteSpace = 'normal';
+        div.innerHTML = `<div style="font-size:10px;color:#999;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Answer</div>` + mdToHtml(text);
+        answerEl.appendChild(div);
+
+        // Answer compounding - Karpathy pattern: valuable answers go back into the wiki
+        const saveWrap = document.createElement('div');
+        saveWrap.style.marginTop = '8px';
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'save-btn';
+        saveBtn.textContent = '+ Save this answer to wiki';
+        saveBtn.onclick = () => {
+          const insightCount = bumpInsightCount();
+          const slug = 'wiki/insights/insight-' + insightCount + '.md';
+          const content = `# Q&A\n\n**Question:** ${q}\n\n**Answer:**\n${text}\n\n_Saved: ${new Date().toISOString().slice(0, 10)}_`;
+          wikiPages[slug] = content;
+          // Add tab to wiki viewer
+          const tabs = document.getElementById('tabsEl');
+          const label = 'insight-' + insightCount;
+          const t = document.createElement('button');
+          t.className = 'tab';
+          t.textContent = label;
+          const wikiEl = document.getElementById('wikiEl');
+          const tabDescEl = document.getElementById('tabDescEl');
+          t.onclick = () => {
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            t.classList.add('active');
+            wikiEl.textContent = wikiPages[slug];
+            tabDescEl.textContent = 'Saved insight - ' + q.slice(0, 60);
+          };
+          tabs.appendChild(t);
+          saveBtn.style.display = 'none';
+          const note = document.createElement('div');
+          note.className = 'saved-note';
+          note.textContent = '✓ Saved to wiki - visible in the Generated wiki tabs above';
+          saveWrap.appendChild(note);
+        };
+        saveWrap.appendChild(saveBtn);
+        answerEl.appendChild(saveWrap);
+      } catch (e) {
+        const div = document.createElement('div');
+        div.className = 'answer';
+        div.textContent = 'API error. Run locally:\npython query.py "' + q + '"';
+        answerEl.appendChild(div);
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Ask';
+    }
+
+    // -- Graphify Integration: Visual Graph & Clustering --
+    let network = null;
+    function toggleWikiView(view) {
+      document.getElementById('viewTextBtn').classList.toggle('active', view === 'text');
+      document.getElementById('viewGraphBtn').classList.toggle('active', view === 'graph');
+      document.getElementById('textContainer').style.display = view === 'text' ? 'block' : 'none';
+      document.getElementById('graphContainer').style.display = view === 'graph' ? 'block' : 'none';
+
+      if (view === 'graph') {
+        buildGraphFromWiki();
+      }
+    }
+
+    function buildGraphFromWiki() {
+      const container = document.getElementById('graphContainer');
+      const nodesData = [];
+      const edgesData = [];
+      const addedNodes = new Set();
+
+      // Build Nodes
+      Object.keys(wikiPages).forEach(path => {
+        const id = path.split('/').pop().replace('.md', '');
+        const group = path.split('/')[1] || 'general'; // Leiden-simplified explicit clustering
+
+        let color = '#ccc';
+        if (group === 'projects' || group === 'nwt') color = '#fde68a'; // Yellow
+        else if (group === 'meetings' || path.includes('meeting')) color = '#bfdbfe'; // Blue
+        else if (group === 'patterns' || path.includes('pattern') || path.includes('lessons')) color = '#fecaca'; // Red
+        else color = '#a7f3d0'; // Green default for God Nodes (index, BEP, BCF types)
+
+        // "God node" scaling based on semantic importance
+        const size = (id === 'index' || id === 'bep' || id === 'clash-types') ? 35 : 20;
+
+        nodesData.push({ id, label: id, group, color: { background: color, border: '#111' }, size, font: { size: 13, face: 'var(--font)', color: '#111' } });
+        addedNodes.add(id);
+      });
+
+      // Build Edges
+      Object.entries(wikiPages).forEach(([path, content]) => {
+        const sourceId = path.split('/').pop().replace('.md', '');
+
+        // Regex to extract markdown links like [bep](bep.md) or just [bep]
+        const linkRegex = /\[([a-zA-Z0-9_.-]+)\]/g;
+        let match;
+        while ((match = linkRegex.exec(content)) !== null) {
+          const targetId = match[1].replace('.md', '');
+          if (targetId !== sourceId && addedNodes.has(targetId)) {
+            // Check for duplicate edges
+            const edgeExists = edgesData.some(e => e.from === sourceId && e.to === targetId);
+            if (!edgeExists) {
+              edgesData.push({
+                from: sourceId, to: targetId,
+                color: { color: '#ccc', highlight: '#888' },
+                width: 1.5,
+                arrows: { to: { enabled: true, scaleFactor: 0.5 } }
+              });
+            }
+          }
+        }
+      });
+
+      // Special God Node inferred relationships not captured by standard brackets
+      // Let's ensure 'index' connects to everything to simulate high connectivity
+      addedNodes.forEach(targetId => {
+        if (targetId !== 'index') {
+          const edgeExists = edgesData.some(e => (e.from === 'index' && e.to === targetId) || (e.from === targetId && e.to === 'index'));
+          if (!edgeExists) {
+            edgesData.push({ from: 'index', to: targetId, color: { color: '#e5e5e5' }, width: 1, dashes: true }); // Inferred edge
+          }
+        }
+      });
+
+      const data = {
+        nodes: new vis.DataSet(nodesData),
+        edges: new vis.DataSet(edgesData)
+      };
+
+      const options = {
+        nodes: { shape: 'dot' },
+        physics: {
+          stabilization: { iterations: 150 },
+          barnesHut: { springLength: 150, centralGravity: 0.1 }
+        },
+        interaction: { hover: true, tooltipDelay: 200 }
+      };
+
+      if (network) network.destroy();
+      network = new vis.Network(container, data, options);
+    }
+  </script>
+</body>
+
+</html>

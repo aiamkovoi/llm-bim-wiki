@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "exportedAt": "2026-04-06T09:00:00.000Z",
+  "projects": {
+    "nwt": {
+      "name": "North West Tower",
+      "pages": {
+        "wiki/index.md": "# BIM Knowledge Base - North West Tower\n\nSources: BEP (v1.0) · BCF clash types · Lessons learned log · Meeting 2026-04-23\nLast updated: 2026-04-23 | Wiki pages: 6 | Open actions: 2\n\n## Pages\n\n- [project](wiki/projects/nwt.md)\n- [bep](wiki/bep.md)\n- [lessons-learned](wiki/lessons-learned.md)\n- [clash-types](wiki/clash-types.md)\n- [meeting-2026-04-23](wiki/meetings/2026-04-23.md)\n- [patterns](wiki/patterns/overview.md)",
+        "wiki/projects/nwt.md": "# North West Tower\n\n30-storey Design & Build project with active BCF coordination and recurring basement clashes.\n\n## Summary\n\n- Team uses fortnightly coordination cadence\n- BIM goals, LOD and QC rules are defined in the BEP\n- Open actions remain in the B1-B2 basement zone",
+        "wiki/bep.md": "# BIM Execution Plan\n\n## Overview\n\nThe demo BEP defines team responsibilities, meeting cadence, LOD expectations and quality control checkpoints.\n\n## Key points\n\n- 3D coordination is owned by the BIM Coordinator\n- Interference checks run before each model exchange\n- Modelling standards apply across disciplines",
+        "wiki/clash-types.md": "# Clash Types\n\n## Overview\n\n9 clash categories are tracked in the demo dataset.\n\n## Resolution patterns\n\n- Repeated duct vs structure issues should be handled with standard clearance rules\n- BWIC requests require insulation and penetration data before acceptance",
+        "wiki/meetings/2026-04-23.md": "# Coordination Meeting - 2026-04-23\n\n## Actions\n\n- BCF #45-48 smoke duct clash remains open\n- BWIC penetration request rejected pending resubmission\n- BCF #52 elevator shaft issue closed during the meeting",
+        "wiki/patterns/overview.md": "# Patterns Overview\n\n## ⚠ RECURRING PATTERN - Basement service coordination\n\nIssue IDs: BCF #45-48\nDates: 2026-04-23\nZone/discipline: B1-B2 / MEP + Structural\n\nResolution history: recurring clearance conflict between smoke ducts and ramp structure.\nRecommended action: apply standard basement coordination review before the next exchange.\n\n## Single-occurrence issues to monitor\n\n- Elevator shaft shared coordinates issue\n- Stair alignment check"
+      },
+      "createdAt": "2026-04-23",
+      "insightCount": 0,
+      "ingested": true
+    },
+    "pilot-hospital": {
+      "name": "Pilot Hospital Wing",
+      "pages": {
+        "wiki/index.md": "# BIM Knowledge Base - Pilot Hospital Wing\n\nSources: BCF coordination set\nLast updated: 2026-04-02 | Wiki pages: 3 | Open actions: 1\n\n## Pages\n\n- [mep](wiki/disciplines/mep.md)\n- [clash](wiki/issue-types/clash.md)\n- [patterns](wiki/patterns/overview.md)",
+        "wiki/disciplines/mep.md": "# MEP\n\n## Summary\n\nMEP clashes are concentrated around ceiling void coordination and fire protection routing.\n\n## Open issues\n\n| ID | title | priority | assigned |\n|---|---|---|---|\n| H-17 | Fire damper access blocked | High | [TODO] |\n\n## Closed issues\n\n| ID | type | title | root cause cluster | closed date |\n|---|---|---|---|---|\n| H-08 | Clash | Ceiling void cable tray overlap | Coordination zoning | 2026-03-28 |",
+        "wiki/issue-types/clash.md": "# Clash\n\n## Overview\n\n2 clashes, 1 open, 1 closed.\n\n## Resolution patterns\n\nMost issues are resolved by earlier ceiling void zoning and explicit access clearance checks.",
+        "wiki/patterns/overview.md": "# Patterns Overview\n\n## Single-occurrence issues to monitor\n\n- Fire damper access blocked in ceiling void"
+      },
+      "createdAt": "2026-04-02",
+      "insightCount": 0,
+      "ingested": true
+    }
+  }
+}

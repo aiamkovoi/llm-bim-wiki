@@ -1,0 +1,35 @@
+COORDINATION MEETING MINUTES
+
+Project: North West Tower
+Date: 23.04.2026
+Stage: Developed Design (LOD 300)
+Attendees:
+- Jim Bim (BIM Manager, ABC Consultants)
+- Lee Brown (Lead Architect, LC Architects)
+- Kevin Kerr (Lead Structural, JKL Structural)
+- Dana Wallis (MEP Coordinator, DPW Engineers)
+
+AGENDA:
+1. Critical clash resolution in basement parking zone (Levels B1 - B2).
+2. Builders Work in Connection (BWIC) exchange process.
+3. Open RFI status update.
+
+ACTION ITEMS:
+
+1. Clashes: Smoke extraction ducts vs Ramp (BCF Issue #45 - #48)
+   - Problem: Main ducts clash with vehicle clearance envelope on ramp (clearance under 2200mm).
+   - Solution: Dana Wallis (MEP) will change duct section from round to rectangular to maintain cross-sectional area at lower height.
+   - Deadline: 25.04.2026
+   - Status: OPEN
+
+2. Builders Work in Connection (BWIC)
+   - Problem: Penetration requests from MEP issued without accounting for pipe insulation.
+   - Solution: MEP team will update void families to include insulation thickness parameter + 25mm installation tolerance. Requests NWT-MEP-BWIC-V1 rejected.
+   - Deadline: 27.04.2026 (Assignee: Dana) 
+   - Note: STR to accept updated model on 28.04.2026.
+   - Status: OPEN
+
+3. Clashes: Elevator Shaft (BCF Issue #52)
+   - Problem: ARCH elevator shaft misaligned with STR pylons on level L05.
+   - Solution: Shared coordinates error in linked file. Lee Brown (ARCH) will re-acquire shared coordinates.
+   - Status: CLOSED (Resolved during meeting)
